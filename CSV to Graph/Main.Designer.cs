@@ -55,6 +55,7 @@
             // Menu
             // 
             this.Menu.BackColor = System.Drawing.SystemColors.Control;
+            this.Menu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.Menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1,
             this.helpToolStripMenuItem,

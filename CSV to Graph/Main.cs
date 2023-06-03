@@ -6,6 +6,8 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using LicenseActivation;
+using Microsoft.Win32;
 
 namespace CSV_Graph
 {
@@ -13,16 +15,92 @@ namespace CSV_Graph
     {
 
         string file;
+
         int numberOfZoom = 0;
+
         string sos = "";
         string eos = "";
+
+        public static bool licenseActivated = false;
+
+        int markerInterval = 200;
+        int markerSSize = 10;
+
         TextAnnotation RA = new TextAnnotation();
         TextAnnotation RA1 = new TextAnnotation();
         TextAnnotation RA2 = new TextAnnotation();
 
         public Main()
         {
+            string reply = keyread("VG");
+
+            if (reply == null)
+            {
+
+                Form1 licenseActivation = new Form1();
+
+                licenseActivation.ShowDialog();
+
+                licenseActivated = licenseActivation.activated;
+            }
+            else if (reply != null)
+            {
+
+                if (bool.Parse(reply))
+                {
+                    licenseActivated = true;
+                }
+                else
+                {
+                    Form1 licenseActivation = new Form1();
+
+                    licenseActivation.ShowDialog();
+
+                    licenseActivated = licenseActivation.activated;
+                }
+            }
+
+            if (!licenseActivated)
+            {
+                Environment.Exit(0);
+            }
+
             InitializeComponent();
+        }
+
+        public string keyread(string KeyName)
+        {
+            try
+            {
+                // Opening the registry key
+                RegistryKey rk = Registry.CurrentUser;
+                // Open a subKey as read-only
+                RegistryKey sk1 = rk.OpenSubKey(@"SOFTWARE\VG");
+                // If the RegistrySubKey doesn't exist -> (null)
+                if (sk1 == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    try
+                    {
+                        // If the RegistryKey exists I get its value
+                        // or null is returned.
+                        return (string)sk1.GetValue(KeyName.ToUpper());
+                    }
+                    catch (Exception ex1)
+                    {
+                        MessageBox.Show(ex1.Message);
+                        return null;
+                    }
+                }
+            }
+            catch (Exception ex1)
+            {
+                MessageBox.Show(ex1.Message);
+                return null;
+            }
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -36,7 +114,7 @@ namespace CSV_Graph
             chart1.MouseWheel += Chart1_MouseWheel;
         }
 
-        private void Chart1_MouseWheel(object sender, MouseEventArgs e)
+        private void Chart1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             var chart = (Chart)sender;
             var xAxis = chart.ChartAreas[0].AxisX;
@@ -105,7 +183,7 @@ namespace CSV_Graph
                 }
             }
         }
-        
+
         public void displ(bool vis)
         {
             label1.Visible = vis;
@@ -233,17 +311,21 @@ namespace CSV_Graph
 
         public void temp(string t, string f, string x, string y, decimal m, decimal msp, bool mvis, string ymax, string ymin)
         {
+            markerInterval = (int)msp;
+
             Invoke((MethodInvoker)delegate
             {
                 displ(true);
             });
+
             if (!String.IsNullOrWhiteSpace(t))
             {
                 var cht = new Title();
                 cht.Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold);
                 cht.Text = t;
                 cht.Name = "Title";
-                Invoke((MethodInvoker)delegate { 
+                Invoke((MethodInvoker)delegate
+                {
                     chart1.Titles.Add(cht);
                 });
             }
@@ -304,12 +386,12 @@ namespace CSV_Graph
                 {
                     foreach (var s in chart1.Series)
                     {
-                        s.MarkerStep = Convert.ToInt32(m);
+                        s.MarkerStep = Convert.ToInt32(msp);
                     }
                 });
             }
 
-            if(!String.IsNullOrWhiteSpace(ymax) && !String.IsNullOrWhiteSpace(ymin))
+            if (!String.IsNullOrWhiteSpace(ymax) && !String.IsNullOrWhiteSpace(ymin))
             {
                 if (int.Parse(ymax) > int.Parse(ymin))
                 {
@@ -349,8 +431,8 @@ namespace CSV_Graph
         {
             try
             {
-                
-                Thread thread = new Thread(() => temp( t, f, x, y, m, msp, mvis, ymax, ymin));
+
+                Thread thread = new Thread(() => temp(t, f, x, y, m, msp, mvis, ymax, ymin));
                 thread.Start();
             }
             catch
@@ -422,7 +504,8 @@ namespace CSV_Graph
                 sos = content[1].Split(',')[0];
                 eos = content[content.Length - 1].Split(',')[0];
 
-                Invoke((MethodInvoker)delegate {
+                Invoke((MethodInvoker)delegate
+                {
                     chart1.Series.SuspendUpdates();
                     for (int ik = 0; ik < len; ik++)
                     {
@@ -443,7 +526,7 @@ namespace CSV_Graph
                     RA1.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
                     RA1.Alignment = System.Drawing.ContentAlignment.TopRight;
                     chart1.Annotations.Add(RA1);
-                    
+
                     RA2 = new TextAnnotation();
                     RA2.ForeColor = System.Drawing.Color.Black;
                     RA2.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
@@ -501,12 +584,12 @@ namespace CSV_Graph
             RA2.Height = 4;
         }
 
-        private void chart1_MouseDown(object sender, MouseEventArgs e)
+        private void chart1_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             var result = chart1.HitTest(e.X, e.Y);
-            if(result.ChartElementType == ChartElementType.LegendItem)
+            if (result.ChartElementType == ChartElementType.LegendItem)
             {
-                if(result.Series.Color == System.Drawing.Color.Transparent)
+                if (result.Series.Color == System.Drawing.Color.Transparent)
                 {
                     result.Series.Color = System.Drawing.Color.Empty;
                 }

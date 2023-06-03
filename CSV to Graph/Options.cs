@@ -7,6 +7,7 @@ namespace CSV_Graph
     {
 
         public static Main ParentForm { get; set; }
+        public int markerInterval {  get; set; }
 
         public Options()
         {
