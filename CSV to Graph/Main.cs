@@ -9,7 +9,8 @@ using LicenseActivation;
 using Microsoft.Win32;
 using Image = iTextSharp.text.Image;
 using System.Linq;
-using System.Windows;
+using System.Threading;
+using System.Globalization;
 
 namespace CSV_Graph
 {
@@ -461,19 +462,25 @@ namespace CSV_Graph
 
                 sos = content[1].Split(',')[0];
                 eos = content[content.Length - 1].Split(',')[0];
-
+                DateTime startTS = new DateTime();
+                DateTime endTS = new DateTime();
+                string timespanB = "";
                 try
                 {
-                    filterStart.MinDate = DateTime.Parse(sos);
-                    filterStart.MaxDate = DateTime.Parse(eos);
-                    filterStart.Value = DateTime.Parse(sos);
-                    filterEnd.MinDate = DateTime.Parse(sos);
-                    filterEnd.MaxDate = DateTime.Parse(eos);
-                    filterEnd.Value = DateTime.Parse(eos);
+                    if(DateTime.TryParse(sos, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out startTS) && DateTime.TryParse(eos, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out endTS))
+                    {
+                        filterStart.MinDate = startTS;
+                        filterStart.MaxDate = endTS;
+                        filterStart.Value = startTS;
+                        filterEnd.MinDate = startTS;
+                        filterEnd.MaxDate = endTS;
+                        filterEnd.Value = endTS;
+                        timespanB = (endTS - startTS).ToString();
+                    }
                 }
-                catch
+                catch (Exception Ex)
                 {
-
+                    System.Windows.Forms.MessageBox.Show(Ex.ToString(), "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
                 chart1.Series.SuspendUpdates();
@@ -505,17 +512,15 @@ namespace CSV_Graph
 
                 RA.Text = "Start: " + sos;
                 RA1.Text = "End: " + eos;
-                string timespanB = (DateTime.Parse(eos) - DateTime.Parse(sos)).ToString();
                 RA2.Text = "Duration: " + timespanB + " (hrs:min:sec)";
                 Ra2Pos();
                 Ra1Pos();
                 RaPos();
 
             }
-            catch
+            catch (Exception Ex)
             {
-                System.Windows.MessageBox.Show("The file is being used by another application. Close and try again.");
-                displ(false);
+                System.Windows.MessageBox.Show("The file is being used by another application. Close and try again. " + Ex.Message);
             }
         }
 
@@ -781,6 +786,49 @@ namespace CSV_Graph
 
                 doc.Close();
                 System.Windows.Forms.MessageBox.Show("The PDF file was exported successfully!", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (dataView != null)
+            {
+                SFD = new System.Windows.Forms.SaveFileDialog();
+                SFD.Filter = "CSV (*.csv)|*.csv";
+                if (SFD.ShowDialog(this) == DialogResult.OK)
+                {
+                    int columnCount = dataView.Columns.Count;
+                    string[] outputCsv = new string[dataView.Rows.Count];
+                    try
+                    {
+                        string columnNames = string.Join(",", dataView.Columns.Cast<DataGridViewColumn>().Select(col => col.HeaderText));
+                        outputCsv[0] += columnNames;
+
+                        for (int i = 1; (i - 1) < dataView.Rows.Count - 1; i++)
+                        {
+                            outputCsv[i] = string.Join(",", dataView.Rows[i].Cells.Cast<DataGridViewCell>().Select(cell => cell.Value?.ToString() ?? ""));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.Forms.MessageBox.Show("Some error exporting the CSV", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+                    string fna = SFD.FileName;
+                    Thread csvWrite = new Thread(() =>
+                    {
+                        using (StreamWriter writer = new StreamWriter(fna))
+                        {
+                            foreach (string line in outputCsv)
+                            {
+                                writer.WriteLine(line);
+                            }
+                        }
+                    });
+                    csvWrite.Start();
+
+                    System.Windows.Forms.MessageBox.Show("Data Exported Successfully", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
         }
     }

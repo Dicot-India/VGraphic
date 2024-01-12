@@ -59,6 +59,7 @@
             this.filterEnd = new System.Windows.Forms.DateTimePicker();
             this.filterStart = new System.Windows.Forms.DateTimePicker();
             this.dataView = new System.Windows.Forms.DataGridView();
+            this.button1 = new System.Windows.Forms.Button();
             this.Menu.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -247,6 +248,7 @@
             // 
             // splitContainer.Panel1
             // 
+            this.splitContainer.Panel1.Controls.Add(this.button1);
             this.splitContainer.Panel1.Controls.Add(this.clearFilter);
             this.splitContainer.Panel1.Controls.Add(this.label2);
             this.splitContainer.Panel1.Controls.Add(this.exportPDFButton);
@@ -277,7 +279,7 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(211, 11);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(16, 13);
+            this.label2.Size = new System.Drawing.Size(18, 16);
             this.label2.TabIndex = 4;
             this.label2.Text = "to";
             // 
@@ -308,7 +310,7 @@
             this.filterEnd.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.filterEnd.Location = new System.Drawing.Point(233, 7);
             this.filterEnd.Name = "filterEnd";
-            this.filterEnd.Size = new System.Drawing.Size(200, 20);
+            this.filterEnd.Size = new System.Drawing.Size(200, 22);
             this.filterEnd.TabIndex = 1;
             // 
             // filterStart
@@ -317,7 +319,7 @@
             this.filterStart.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.filterStart.Location = new System.Drawing.Point(5, 7);
             this.filterStart.Name = "filterStart";
-            this.filterStart.Size = new System.Drawing.Size(200, 20);
+            this.filterStart.Size = new System.Drawing.Size(200, 22);
             this.filterStart.TabIndex = 0;
             // 
             // dataView
@@ -328,6 +330,17 @@
             this.dataView.Name = "dataView";
             this.dataView.Size = new System.Drawing.Size(1230, 635);
             this.dataView.TabIndex = 0;
+            // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(1012, 5);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(103, 22);
+            this.button1.TabIndex = 6;
+            this.button1.Text = "Export CSV";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Main
             // 
@@ -391,5 +404,6 @@
         private System.Windows.Forms.Button filterButton;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button clearFilter;
+        private System.Windows.Forms.Button button1;
     }
 }
