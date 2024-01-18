@@ -52,6 +52,8 @@
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.clearFilter = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.exportPDFButton = new System.Windows.Forms.Button();
@@ -59,7 +61,6 @@
             this.filterEnd = new System.Windows.Forms.DateTimePicker();
             this.filterStart = new System.Windows.Forms.DateTimePicker();
             this.dataView = new System.Windows.Forms.DataGridView();
-            this.button1 = new System.Windows.Forms.Button();
             this.Menu.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -82,6 +83,7 @@
             this.aboutToolStripMenuItem});
             this.Menu.Location = new System.Drawing.Point(0, 0);
             this.Menu.Name = "Menu";
+            this.Menu.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
             this.Menu.Size = new System.Drawing.Size(1242, 24);
             this.Menu.TabIndex = 0;
             this.Menu.Text = "menuStrip1";
@@ -126,34 +128,34 @@
             this.pngToolStripMenuItem,
             this.pdfToolStripMenuItem});
             this.saveAspngToolStripMenuItem.Name = "saveAspngToolStripMenuItem";
-            this.saveAspngToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.saveAspngToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveAspngToolStripMenuItem.Text = "Save As";
             // 
             // pngToolStripMenuItem
             // 
             this.pngToolStripMenuItem.Name = "pngToolStripMenuItem";
-            this.pngToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
+            this.pngToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pngToolStripMenuItem.Text = ".png";
             this.pngToolStripMenuItem.Click += new System.EventHandler(this.pngToolStripMenuItem_Click);
             // 
             // pdfToolStripMenuItem
             // 
             this.pdfToolStripMenuItem.Name = "pdfToolStripMenuItem";
-            this.pdfToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
+            this.pdfToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pdfToolStripMenuItem.Text = ".pdf";
             this.pdfToolStripMenuItem.Click += new System.EventHandler(this.pdfToolStripMenuItem_Click);
             // 
             // printToolStripMenuItem
             // 
             this.printToolStripMenuItem.Name = "printToolStripMenuItem";
-            this.printToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.printToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.printToolStripMenuItem.Text = "Print";
             this.printToolStripMenuItem.Click += new System.EventHandler(this.printToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.optionsToolStripMenuItem.Text = "Options";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
@@ -167,6 +169,7 @@
             // OFD
             // 
             this.OFD.Filter = "CSV (*.csv)|*.csv";
+            this.OFD.FileOk += new System.ComponentModel.CancelEventHandler(this.OFD_FileOk);
             // 
             // printDialog1
             // 
@@ -202,7 +205,7 @@
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(451, 327);
+            this.label1.Location = new System.Drawing.Point(451, 326);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(332, 25);
             this.label1.TabIndex = 2;
@@ -248,6 +251,7 @@
             // 
             // splitContainer.Panel1
             // 
+            this.splitContainer.Panel1.Controls.Add(this.button2);
             this.splitContainer.Panel1.Controls.Add(this.button1);
             this.splitContainer.Panel1.Controls.Add(this.clearFilter);
             this.splitContainer.Panel1.Controls.Add(this.label2);
@@ -261,8 +265,30 @@
             // 
             this.splitContainer.Panel2.Controls.Add(this.dataView);
             this.splitContainer.Size = new System.Drawing.Size(1230, 675);
-            this.splitContainer.SplitterDistance = 36;
+            this.splitContainer.SplitterDistance = 35;
             this.splitContainer.TabIndex = 0;
+            // 
+            // button2
+            // 
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button2.Location = new System.Drawing.Point(1122, 7);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(103, 22);
+            this.button2.TabIndex = 7;
+            this.button2.Text = "PDF Setup";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(905, 7);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(103, 22);
+            this.button1.TabIndex = 6;
+            this.button1.Text = "Export CSV";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // clearFilter
             // 
@@ -279,14 +305,14 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(211, 11);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(18, 16);
+            this.label2.Size = new System.Drawing.Size(16, 13);
             this.label2.TabIndex = 4;
             this.label2.Text = "to";
             // 
             // exportPDFButton
             // 
             this.exportPDFButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.exportPDFButton.Location = new System.Drawing.Point(1121, 6);
+            this.exportPDFButton.Location = new System.Drawing.Point(1014, 7);
             this.exportPDFButton.Name = "exportPDFButton";
             this.exportPDFButton.Size = new System.Drawing.Size(103, 22);
             this.exportPDFButton.TabIndex = 3;
@@ -310,7 +336,7 @@
             this.filterEnd.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.filterEnd.Location = new System.Drawing.Point(233, 7);
             this.filterEnd.Name = "filterEnd";
-            this.filterEnd.Size = new System.Drawing.Size(200, 22);
+            this.filterEnd.Size = new System.Drawing.Size(200, 20);
             this.filterEnd.TabIndex = 1;
             // 
             // filterStart
@@ -319,7 +345,7 @@
             this.filterStart.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.filterStart.Location = new System.Drawing.Point(5, 7);
             this.filterStart.Name = "filterStart";
-            this.filterStart.Size = new System.Drawing.Size(200, 22);
+            this.filterStart.Size = new System.Drawing.Size(200, 20);
             this.filterStart.TabIndex = 0;
             // 
             // dataView
@@ -328,19 +354,9 @@
             this.dataView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataView.Location = new System.Drawing.Point(0, 0);
             this.dataView.Name = "dataView";
-            this.dataView.Size = new System.Drawing.Size(1230, 635);
+            this.dataView.RowHeadersWidth = 51;
+            this.dataView.Size = new System.Drawing.Size(1230, 636);
             this.dataView.TabIndex = 0;
-            // 
-            // button1
-            // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(1012, 5);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(103, 22);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "Export CSV";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Main
             // 
@@ -405,5 +421,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button clearFilter;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button button2;
     }
 }

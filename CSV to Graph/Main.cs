@@ -11,6 +11,7 @@ using Image = iTextSharp.text.Image;
 using System.Linq;
 using System.Threading;
 using System.Globalization;
+using System.Data.OleDb;
 
 namespace CSV_Graph
 {
@@ -73,6 +74,8 @@ namespace CSV_Graph
             }
 
             InitializeComponent();
+
+            OFD.Filter = "CSV Files (*.csv)|*.csv|Excel Files (*.xls;*.xlsx)|*.xls;*.xlsx|All Files (*.*)|*.*";
         }
 
         public string keyread(string KeyName)
@@ -181,7 +184,14 @@ namespace CSV_Graph
                 file = OFD.FileName;
                 try
                 {
-                    openf();
+                    if(Path.GetExtension(OFD.FileName).ToLower() == ".csv")
+                    {
+                        openf();
+                    }
+                    else
+                    {
+                        LoadExcel();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -194,6 +204,107 @@ namespace CSV_Graph
         {
             label1.Visible = vis;
         }
+
+        public void LoadExcel()
+        {
+
+            if (helpToolStripMenuItem.Enabled == true)
+            {
+                chart1.Series.Clear();
+            }
+
+            helpToolStripMenuItem.Enabled = true;
+
+            // Connection string for Excel
+            string connectionString = $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={OFD.FileName};Extended Properties='Excel 12.0 Xml;HDR=YES';";
+
+            // Get the name of the first sheet
+            using (OleDbConnection connection = new OleDbConnection(connectionString))
+            {
+                connection.Open();
+                DataTable sheetNames = connection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
+                string firstSheetName = sheetNames.Rows[0]["TABLE_NAME"].ToString();
+                connection.Close();
+
+                // Query to select all data from the first sheet
+                string query = $"SELECT * FROM [{firstSheetName}]";
+
+                using (OleDbCommand command = new OleDbCommand(query, connection))
+                {
+                    connection.Open();
+
+                    // Execute the command
+                    using (OleDbDataAdapter adapter = new OleDbDataAdapter(command))
+                    {
+                        dt = new DataTable();
+                        adapter.Fill(dt);
+                        dataView.DataSource = dt;
+                    }
+                }
+            }
+
+
+            chart1.ChartAreas.SuspendUpdates();
+            for (int i = 1; i < dt.Columns.Count; i++)
+            {
+                var series = new Series
+                {
+                    Name = dt.Columns[i].ColumnName,
+                    IsVisibleInLegend = true,
+                    ChartType = SeriesChartType.Spline,
+                    MarkerStyle = MarkerStyle.Circle,
+                    MarkerSize = 10,
+                    MarkerStep = 200,
+                    BorderWidth = 3,
+                };
+
+                // Add the series to the Chart control
+                chart1.Series.Add(series);
+            }
+
+            chart1.Series.SuspendUpdates();
+            for (int ik = 0; ik < dt.Columns.Count - 1; ik++)
+            {
+                chart1.Series[ik].Points.DataBindXY(dt.DefaultView, dt.Columns[0].ColumnName, dt.DefaultView, dt.Columns[ik + 1].ColumnName);
+            }
+            chart1.Series.ResumeUpdates();
+            chart1.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm dd-MM-yyyy";
+
+            chart1.Annotations.Clear();
+
+            sos = dt.Rows[0][0].ToString();
+            eos = dt.Rows[dt.Rows.Count - 1][0].ToString();
+
+
+            RA = new TextAnnotation();
+            RA.Alignment = System.Drawing.ContentAlignment.TopRight;
+            RA.ForeColor = System.Drawing.Color.Black;
+            RA.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
+            chart1.Annotations.Add(RA);
+
+            RA1 = new TextAnnotation();
+            RA1.ForeColor = System.Drawing.Color.Black;
+            RA1.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
+            RA1.Alignment = System.Drawing.ContentAlignment.TopRight;
+            chart1.Annotations.Add(RA1);
+
+            RA2 = new TextAnnotation();
+            RA2.ForeColor = System.Drawing.Color.Black;
+            RA2.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
+            RA2.Alignment = System.Drawing.ContentAlignment.TopRight;
+            chart1.Annotations.Add(RA2);
+
+            RA.Text = "Start: " + sos;
+            RA1.Text = "End: " + eos;
+            string timespanB = (DateTime.Parse(eos) - DateTime.Parse(sos)).ToString();
+            RA2.Text = "Duration: " + timespanB + " (hrs:min:sec)";
+            Ra2Pos();
+            Ra1Pos();
+            RaPos();
+
+            chart1.ChartAreas.ResumeUpdates();
+        }
+
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -257,15 +368,18 @@ namespace CSV_Graph
                 SFD.Filter = "PDF (*.pdf)|*.pdf";
                 if (SFD.ShowDialog() == DialogResult.OK)
                 {
-                    var chartimg = new MemoryStream();
-                    chart1.SaveImage(chartimg, ChartImageFormat.Png);
+                    chart1.SaveImage("chartImage.png", ChartImageFormat.Png);
                     Document pdfDoc = new Document(PageSize.A4.Rotate(), 10f, 10f, 10f, 10f);
                     PdfWriter.GetInstance(pdfDoc, new FileStream(SFD.FileName, FileMode.Create));
                     pdfDoc.Open();
-                    Image Chim = Image.GetInstance(chartimg.GetBuffer());
-                    Chim.ScaleAbsoluteHeight(575);
-                    Chim.ScaleAbsoluteWidth(750);
-                    pdfDoc.Add(Chim);
+                    Image chartImage = Image.GetInstance("chartImage.png");
+                    // Scale the image to fit the entire page
+                    chartImage.ScaleAbsolute(pdfDoc.PageSize.Width, pdfDoc.PageSize.Height);
+
+                    // Position the image at the top-left corner
+                    chartImage.SetAbsolutePosition(0, 0);
+
+                    pdfDoc.Add(chartImage);
                     pdfDoc.Close();
                     System.Windows.MessageBox.Show("Graph PDF exported");
                 }
@@ -701,15 +815,51 @@ namespace CSV_Graph
             {
                 // Create a new PDF document in landscape orientation
                 Document doc = new Document(PageSize.LETTER.Rotate());
+                BaseFont headerFont = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                Font titleFont = new Font(headerFont, 25, 1, BaseColor.BLACK);
+                Font subtitleFont = new Font(headerFont, 20, 1, BaseColor.BLACK);
+                Paragraph titlePara = new Paragraph(Properties.Settings.Default.Title, titleFont);
+                titlePara.Alignment = Element.ALIGN_CENTER;
+                Paragraph subtitlePara = new Paragraph(Properties.Settings.Default.Subtitle, subtitleFont);
+                subtitlePara.Alignment = Element.ALIGN_CENTER;
 
                 // Create an instance of your custom PdfPageEvent class
                 PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(SFD.FileName, FileMode.Create));
                 PageNumberEventHandler pageEventHandler = new PageNumberEventHandler();
                 writer.PageEvent = pageEventHandler;
-                BaseFont headerFont = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
                 Font chf = new Font(headerFont, 10, 1, BaseColor.WHITE);
 
                 doc.Open();
+
+                if (!String.IsNullOrEmpty(Properties.Settings.Default.Logo))
+                {
+                    if (File.Exists(Properties.Settings.Default.Logo))
+                    {
+                        iTextSharp.text.Image img = iTextSharp.text.Image.GetInstance(System.Drawing.Image.FromFile(Properties.Settings.Default.Logo), System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                        float width = 150f; // Replace with your desired width
+                        float height = 100f; // Replace with your desired height
+
+                        // Set absolute position and scale to fit within the specified rectangle
+                        img.SetAbsolutePosition(50f, doc.PageSize.Height - 100);
+                        img.ScaleToFit(width, height);
+
+                        // Add the image to the PDF document
+                        doc.Add(img);
+                    }
+                }
+
+                if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.Title))
+                {
+                    doc.Add(titlePara);
+                    doc.Add(Chunk.NEWLINE);
+                }
+
+                if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.Subtitle))
+                {
+                    doc.Add(subtitlePara);
+                    doc.Add(Chunk.NEWLINE);
+                }
 
                 // Iterate through the dataGridView in segments of 13 channels
                 int startIndex = 0;
@@ -830,6 +980,17 @@ namespace CSV_Graph
                     System.Windows.Forms.MessageBox.Show("Data Exported Successfully", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            ReportCustomizer customizer = new ReportCustomizer();
+            customizer.ShowDialog();
+        }
+
+        private void OFD_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
         }
     }
 
