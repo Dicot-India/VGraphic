@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Deployment.Application;
-using System.IO;
-using System.Security.Policy;
 using System.Windows.Forms;
 
 namespace CSV_Graph
@@ -20,7 +18,7 @@ namespace CSV_Graph
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start("https://www.dicot.in");
+            System.Diagnostics.Process.Start("https://www.sansel.co.in/");
         }
 
 

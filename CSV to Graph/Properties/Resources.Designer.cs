@@ -99,5 +99,15 @@ namespace CSV_Graph.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WhatsApp_Image_2024_01_22_at_15_32_27 {
+            get {
+                object obj = ResourceManager.GetObject("WhatsApp Image 2024-01-22 at 15.32.27", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

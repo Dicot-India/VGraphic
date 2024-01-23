@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Globalization;
 using System.Data.OleDb;
+using System.Collections.Generic;
 
 namespace CSV_Graph
 {
@@ -75,7 +76,10 @@ namespace CSV_Graph
 
             InitializeComponent();
 
-            OFD.Filter = "CSV Files (*.csv)|*.csv|Excel Files (*.xls;*.xlsx)|*.xls;*.xlsx|All Files (*.*)|*.*";
+            if (!Directory.Exists(FileLocator.mainLocation))
+            {
+                Directory.CreateDirectory(FileLocator.mainLocation);
+            }
         }
 
         public string keyread(string KeyName)
@@ -179,25 +183,7 @@ namespace CSV_Graph
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (OFD.ShowDialog() == DialogResult.OK)
-            {
-                file = OFD.FileName;
-                try
-                {
-                    if(Path.GetExtension(OFD.FileName).ToLower() == ".csv")
-                    {
-                        openf();
-                    }
-                    else
-                    {
-                        LoadExcel();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Windows.MessageBox.Show(ex.ToString());
-                }
-            }
+
         }
 
         public void displ(bool vis)
@@ -531,8 +517,29 @@ namespace CSV_Graph
 
                 content = File.ReadAllLines(file);
 
+                int dataStartingIndex = 0;
 
-                string[] headers = content[0].Split(',');
+                string detection = content[0].Split(',')[0];
+
+                string ModelNumber = "";
+
+                int DeviceID = -1;
+
+                FileDataList list = null;
+
+                if (detection.IndexOf("MODEL") != -1)
+                {
+                    ModelNumber = detection.Split(':')[1];
+                    dataStartingIndex = 2;
+                    if (!Directory.Exists(FileLocator.mainLocation))
+                    {
+                        Directory.CreateDirectory(FileLocator.mainLocation);
+                    }
+                    DeviceID = int.Parse(content[1].Split(',')[0].Split(':')[1]);
+                    list = new FileDataList(DeviceID);
+                }
+
+                string[] headers = content[dataStartingIndex].Split(',');
 
                 string tn = headers[0];
 
@@ -552,7 +559,7 @@ namespace CSV_Graph
                             ChartType = SeriesChartType.Spline,
                             MarkerStyle = MarkerStyle.Circle,
                             MarkerSize = 10,
-                            MarkerStep = 200,
+                            MarkerStep = (int)(content.Length - 1) / 10,
                             BorderWidth = 3,
                         };
 
@@ -561,7 +568,7 @@ namespace CSV_Graph
                 }
 
                 DataRow Row;
-                for (int i = 1; i < content.Length; i++)
+                for (int i = dataStartingIndex + 1; i < content.Length; i++)
                 {
                     headers = content[i].Split(',');
                     Row = dt.NewRow();
@@ -574,14 +581,14 @@ namespace CSV_Graph
 
                 dataView.DataSource = dt;
 
-                sos = content[1].Split(',')[0];
-                eos = content[content.Length - 1].Split(',')[0];
+                sos = content[dataStartingIndex + 1].Split(',')[0];
+                eos = content[content.Length - 1 - dataStartingIndex].Split(',')[0];
                 DateTime startTS = new DateTime();
                 DateTime endTS = new DateTime();
                 string timespanB = "";
                 try
                 {
-                    if(DateTime.TryParse(sos, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out startTS) && DateTime.TryParse(eos, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out endTS))
+                    if (DateTime.TryParse(sos, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out startTS) && DateTime.TryParse(eos, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out endTS))
                     {
                         filterStart.MinDate = startTS;
                         filterStart.MaxDate = endTS;
@@ -600,7 +607,7 @@ namespace CSV_Graph
                 chart1.Series.SuspendUpdates();
                 for (int ik = 0; ik < len; ik++)
                 {
-                    chart1.Series[ik].Points.DataBindXY(dt.DefaultView, tn, dt.DefaultView, content[0].Split(',')[(ik + 1)]);
+                    chart1.Series[ik].Points.DataBindXY(dt.DefaultView, tn, dt.DefaultView, content[dataStartingIndex].Split(',')[(ik + 1)]);
                 }
                 chart1.Series.ResumeUpdates();
 
@@ -631,6 +638,22 @@ namespace CSV_Graph
                 Ra1Pos();
                 RaPos();
 
+                if (list != null)
+                {
+                    string newFileLocation = Path.Combine(FileLocator.mainLocation, DeviceID.ToString(), Path.GetFileNameWithoutExtension(file) + ".dat");
+                    using (File.Create(Path.Combine(FileLocator.mainLocation, DeviceID.ToString(), file + ".dat"))) { }
+                    using (StreamWriter sw = new StreamWriter(newFileLocation, false))
+                    {
+                        for (int i = dataStartingIndex; i < content.Length; i++)
+                        {
+                            sw.WriteLine(content[i]);
+                        }
+                    }
+
+                    list.addInfo(startTS, endTS, content[dataStartingIndex].Split(',').ToList<string>(), Path.GetFileNameWithoutExtension(file));
+                    list.SaveFileInfo(DeviceID);
+                }
+
             }
             catch (Exception Ex)
             {
@@ -641,7 +664,6 @@ namespace CSV_Graph
         void RaPos()
         {
             if (RA == null) return;
-            ElementPosition LP = chart1.Legends[0].Position;
             RA.X = 0.5;
             RA.Y = 0.5;
             RA.Width = 15;
@@ -651,7 +673,6 @@ namespace CSV_Graph
         void Ra1Pos()
         {
             if (RA1 == null) return;
-            ElementPosition LP = chart1.Legends[0].Position;
             RA1.X = 15;
             RA1.Y = 0.5;
             RA1.Width = 15;
@@ -661,7 +682,6 @@ namespace CSV_Graph
         void Ra2Pos()
         {
             if (RA2 == null) return;
-            ElementPosition LP = chart1.Legends[0].Position;
             RA2.X = 30;
             RA2.Y = 0.5;
             RA2.Width = 15;
@@ -875,7 +895,7 @@ namespace CSV_Graph
                     }
 
                     table.WidthPercentage = 100; // Set width to occupy full page width
-                    
+
 
                     if (startIndex > 0)
                     {
@@ -991,6 +1011,216 @@ namespace CSV_Graph
         private void OFD_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
 
+        }
+
+        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (OFD.ShowDialog() == DialogResult.OK)
+            {
+                file = OFD.FileName;
+                try
+                {
+                    if (Path.GetExtension(OFD.FileName).ToLower() == ".csv")
+                    {
+                        openf();
+                    }
+                    else
+                    {
+                        LoadExcel();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show(ex.ToString());
+                }
+            }
+        }
+
+        private void databaseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            dateTimeSelector selector = new dateTimeSelector(Directory.GetDirectories(FileLocator.mainLocation).ToList<string>());
+            DialogResult selectorResult = selector.ShowDialog();
+            if (selectorResult == DialogResult.OK)
+            {
+                FileDataList fileInformation = new FileDataList(int.Parse(Path.GetFileName(selector.selectedFolder)));
+                try
+                {
+                    DateTime startSelection = selector.selectionStart;
+                    DateTime endSelection = selector.selectionEnd;
+
+                    if (DateTime.Compare(selector.selectionStart, selector.selectionEnd) == 0)
+                    {
+                        endSelection = selector.selectionEnd.AddMinutes(1);
+                    }
+
+                    List<string> files = fileInformation.fileList.Where(fileData => DateTime.Compare(fileData.startTimeStamp, startSelection) >= 0 && DateTime.Compare(fileData.endTimeStamp, endSelection) <= 0 ).Select(fileData => Path.Combine(FileLocator.mainLocation, Path.GetFileName(selector.selectedFolder), fileData.fileName + ".dat")).ToList();
+
+                    if (files.Count > 0)
+                    {
+                        var dataTables = files.Select(LoadCsv).ToList();
+                        dt = MergeDataTables(dataTables, startSelection, endSelection);
+                        dataView.DataSource = dt;
+                        LoadGraph();
+                        filterStart.Value = startSelection;
+                        filterEnd.Value = endSelection;
+                        filterStart.MaxDate = endSelection;
+                        filterEnd.MaxDate = endSelection;
+                        filterStart.MinDate = startSelection;
+                        filterEnd.MinDate = startSelection;
+                    }
+                    else
+                    {
+                        MessageBox.Show("No data in this range", "Empty Data", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
+
+        static DataTable LoadCsv(string filePath)
+        {
+            DataTable dataTable = new DataTable();
+
+            using (StreamReader reader = new StreamReader(filePath))
+            {
+                // Assuming the first line contains column headers
+                string[] headers = reader.ReadLine().Split(',');
+
+                // Add columns to DataTable
+                foreach (string header in headers)
+                {
+                    dataTable.Columns.Add(header.Trim());
+                }
+
+                // Read and add data rows
+                while (!reader.EndOfStream)
+                {
+                    string[] rows = reader.ReadLine().Split(',');
+                    DataRow dataRow = dataTable.NewRow();
+
+                    for (int i = 0; i < headers.Length; i++)
+                    {
+                        dataRow[i] = rows[i].Trim();
+                    }
+
+                    dataTable.Rows.Add(dataRow);
+                }
+            }
+
+            return dataTable;
+        }
+
+        static DataTable MergeDataTables(IEnumerable<DataTable> dataTables, DateTime startTimestamp, DateTime endTimestamp)
+        {
+            // Assuming the first column is the timestamp
+            DataTable mergedTable = dataTables.First().Copy();
+
+            foreach (DataTable dataTable in dataTables.Skip(1))
+            {
+                // Merge additional columns
+                foreach (DataColumn column in dataTable.Columns)
+                {
+                    if (!mergedTable.Columns.Contains(column.ColumnName))
+                    {
+                        mergedTable.Columns.Add(column.ColumnName, column.DataType);
+                    }
+                }
+
+                // Merge rows based on timestamp
+                var query = from row1 in mergedTable.AsEnumerable()
+                            join row2 in dataTable.AsEnumerable() on row1[0] equals row2[0] into gj
+                            from subRow in gj.DefaultIfEmpty()
+                            select subRow != null ? subRow : mergedTable.NewRow();
+
+                // Copy merged data to the new DataTable
+                DataTable mergedData = query.CopyToDataTable();
+                mergedTable = mergedData.Copy();
+                DataRow[] filteredRows = mergedTable.Select($"Timestamp >= #{startTimestamp:yyyy-MM-dd HH:mm:ss}# AND Timestamp <= #{endTimestamp:yyyy-MM-dd HH:mm:ss}#");
+
+                // Create a new DataTable with the filtered rows
+                DataTable filteredDataTable = mergedTable.Clone(); // Clone the structure (columns) of the original table
+
+                foreach (DataRow row in filteredRows)
+                {
+                    filteredDataTable.ImportRow(row);
+                }
+
+                mergedTable = filteredDataTable.Copy();
+            }
+
+            return mergedTable;
+        }
+
+        void LoadGraph()
+        {
+            if (helpToolStripMenuItem.Enabled == true)
+            {
+                chart1.Series.Clear();
+            }
+
+            helpToolStripMenuItem.Enabled = true;
+            chart1.ChartAreas.SuspendUpdates();
+            for (int i = 1; i < dt.Columns.Count; i++)
+            {
+                var series = new Series
+                {
+                    Name = dt.Columns[i].ColumnName,
+                    IsVisibleInLegend = true,
+                    ChartType = SeriesChartType.Spline,
+                    MarkerStyle = MarkerStyle.Circle,
+                    MarkerSize = 10,
+                    MarkerStep = (int)(dt.Rows.Count - 1) / 10,
+                    BorderWidth = 3,
+                };
+
+                // Add the series to the Chart control
+                chart1.Series.Add(series);
+            }
+
+            chart1.Series.SuspendUpdates();
+            for (int ik = 0; ik < dt.Columns.Count - 1; ik++)
+            {
+                chart1.Series[ik].Points.DataBindXY(dt.DefaultView, dt.Columns[0].ColumnName, dt.DefaultView, dt.Columns[ik + 1].ColumnName);
+            }
+            chart1.Series.ResumeUpdates();
+            chart1.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm dd-MM-yyyy";
+
+            chart1.Annotations.Clear();
+
+            sos = dt.Rows[0][0].ToString();
+            eos = dt.Rows[dt.Rows.Count - 1][0].ToString();
+
+
+            RA = new TextAnnotation();
+            RA.Alignment = System.Drawing.ContentAlignment.TopRight;
+            RA.ForeColor = System.Drawing.Color.Black;
+            RA.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
+            chart1.Annotations.Add(RA);
+
+            RA1 = new TextAnnotation();
+            RA1.ForeColor = System.Drawing.Color.Black;
+            RA1.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
+            RA1.Alignment = System.Drawing.ContentAlignment.TopRight;
+            chart1.Annotations.Add(RA1);
+
+            RA2 = new TextAnnotation();
+            RA2.ForeColor = System.Drawing.Color.Black;
+            RA2.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
+            RA2.Alignment = System.Drawing.ContentAlignment.TopRight;
+            chart1.Annotations.Add(RA2);
+
+            RA.Text = "Start: " + sos;
+            RA1.Text = "End: " + eos;
+            string timespanB = (DateTime.Parse(eos) - DateTime.Parse(sos)).ToString();
+            RA2.Text = "Duration: " + timespanB + " (hrs:min:sec)";
+            Ra2Pos();
+            Ra1Pos();
+            RaPos();
+
+            chart1.ChartAreas.ResumeUpdates();
         }
     }
 

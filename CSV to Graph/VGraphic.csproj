@@ -7,14 +7,14 @@
     <ProjectGuid>{38EF8E22-0184-4018-BA8D-93DC340B4501}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>CSV_Graph</RootNamespace>
-    <AssemblyName>V Graphic</AssemblyName>
+    <AssemblyName>Sansel Soft 1</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <IsWebBootstrapper>true</IsWebBootstrapper>
     <TargetFrameworkProfile />
-    <PublishUrl>ftp://dicot.in/</PublishUrl>
+    <PublishUrl>ftp://dicot.in/Sansel/</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -24,16 +24,16 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>true</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>http://dicot.in/</InstallUrl>
-    <UpdateUrl>http://dicot.in/</UpdateUrl>
+    <InstallUrl>http://dicot.in/Sansel/</InstallUrl>
+    <UpdateUrl>http://dicot.in/Sansel/</UpdateUrl>
     <TargetCulture>en-IN</TargetCulture>
-    <ProductName>V Graphic</ProductName>
+    <ProductName>Sansel Soft 01</ProductName>
     <PublisherName>Dicot</PublisherName>
-    <SuiteName>Vision</SuiteName>
+    <SuiteName>Sansel</SuiteName>
     <MinimumRequiredVersion>1.0.10.5</MinimumRequiredVersion>
     <WebPage>VGraphic - Download.html</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationRevision>3</ApplicationRevision>
     <ApplicationVersion>1.2.15.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -63,7 +63,7 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>logo_2_dicot_D.ico</ApplicationIcon>
+    <ApplicationIcon>Round.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>CSV_Graph.Program</StartupObject>
@@ -88,6 +88,9 @@
     </Reference>
     <Reference Include="itextsharp, Version=5.5.13.3, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
       <HintPath>..\packages\iTextSharp.5.5.13.3\lib\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -114,6 +117,13 @@
     <Compile Include="About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
+    <Compile Include="dateTimeSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dateTimeSelector.Designer.cs">
+      <DependentUpon>dateTimeSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FileLocator.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -142,6 +152,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dateTimeSelector.resx">
+      <DependentUpon>dateTimeSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
@@ -215,6 +228,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="logo_2_dicot_D.ico" />
+    <Content Include="Round.ico" />
+    <None Include="Resources\WhatsApp Image 2024-01-22 at 15.32.27.jpeg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\LicenseActivation\LicenseActivation\LicenseActivation.csproj">

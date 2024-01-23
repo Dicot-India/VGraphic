@@ -34,6 +34,8 @@
             this.Menu = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.databaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAspngToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -99,10 +101,27 @@
             // 
             // openToolStripMenuItem
             // 
+            this.openToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.databaseToolStripMenuItem});
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.fileToolStripMenuItem.Text = "File";
+            this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
+            // 
+            // databaseToolStripMenuItem
+            // 
+            this.databaseToolStripMenuItem.Name = "databaseToolStripMenuItem";
+            this.databaseToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.databaseToolStripMenuItem.Text = "Database";
+            this.databaseToolStripMenuItem.Click += new System.EventHandler(this.databaseToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
@@ -128,34 +147,34 @@
             this.pngToolStripMenuItem,
             this.pdfToolStripMenuItem});
             this.saveAspngToolStripMenuItem.Name = "saveAspngToolStripMenuItem";
-            this.saveAspngToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAspngToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.saveAspngToolStripMenuItem.Text = "Save As";
             // 
             // pngToolStripMenuItem
             // 
             this.pngToolStripMenuItem.Name = "pngToolStripMenuItem";
-            this.pngToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pngToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
             this.pngToolStripMenuItem.Text = ".png";
             this.pngToolStripMenuItem.Click += new System.EventHandler(this.pngToolStripMenuItem_Click);
             // 
             // pdfToolStripMenuItem
             // 
             this.pdfToolStripMenuItem.Name = "pdfToolStripMenuItem";
-            this.pdfToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pdfToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
             this.pdfToolStripMenuItem.Text = ".pdf";
             this.pdfToolStripMenuItem.Click += new System.EventHandler(this.pdfToolStripMenuItem_Click);
             // 
             // printToolStripMenuItem
             // 
             this.printToolStripMenuItem.Name = "printToolStripMenuItem";
-            this.printToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.printToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.printToolStripMenuItem.Text = "Print";
             this.printToolStripMenuItem.Click += new System.EventHandler(this.printToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.optionsToolStripMenuItem.Text = "Options";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
@@ -265,13 +284,13 @@
             // 
             this.splitContainer.Panel2.Controls.Add(this.dataView);
             this.splitContainer.Size = new System.Drawing.Size(1230, 675);
-            this.splitContainer.SplitterDistance = 35;
+            this.splitContainer.SplitterDistance = 34;
             this.splitContainer.TabIndex = 0;
             // 
             // button2
             // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Location = new System.Drawing.Point(1122, 7);
+            this.button2.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.button2.Location = new System.Drawing.Point(1123, 7);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(103, 22);
             this.button2.TabIndex = 7;
@@ -281,8 +300,8 @@
             // 
             // button1
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(905, 7);
+            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.button1.Location = new System.Drawing.Point(906, 7);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(103, 22);
             this.button1.TabIndex = 6;
@@ -311,8 +330,8 @@
             // 
             // exportPDFButton
             // 
-            this.exportPDFButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.exportPDFButton.Location = new System.Drawing.Point(1014, 7);
+            this.exportPDFButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.exportPDFButton.Location = new System.Drawing.Point(1015, 7);
             this.exportPDFButton.Name = "exportPDFButton";
             this.exportPDFButton.Size = new System.Drawing.Size(103, 22);
             this.exportPDFButton.TabIndex = 3;
@@ -355,7 +374,7 @@
             this.dataView.Location = new System.Drawing.Point(0, 0);
             this.dataView.Name = "dataView";
             this.dataView.RowHeadersWidth = 51;
-            this.dataView.Size = new System.Drawing.Size(1230, 636);
+            this.dataView.Size = new System.Drawing.Size(1230, 637);
             this.dataView.TabIndex = 0;
             // 
             // Main
@@ -368,7 +387,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.Menu;
             this.Name = "Main";
-            this.Text = "VGraphic";
+            this.Text = "Sansel Soft 01";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
             this.Load += new System.EventHandler(this.Main_Load);
@@ -410,7 +429,6 @@
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.DataGridView dataView;
@@ -422,5 +440,8 @@
         private System.Windows.Forms.Button clearFilter;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem databaseToolStripMenuItem;
+        private System.Windows.Forms.Label label1;
     }
 }
