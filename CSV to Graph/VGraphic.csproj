@@ -28,12 +28,12 @@
     <UpdateUrl>http://dicot.in/Sansel/</UpdateUrl>
     <TargetCulture>en-IN</TargetCulture>
     <ProductName>Sansel Soft 01</ProductName>
-    <PublisherName>Dicot</PublisherName>
+    <PublisherName>Sansel</PublisherName>
     <SuiteName>Sansel</SuiteName>
     <MinimumRequiredVersion>1.0.10.5</MinimumRequiredVersion>
     <WebPage>VGraphic - Download.html</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>3</ApplicationRevision>
+    <ApplicationRevision>18</ApplicationRevision>
     <ApplicationVersion>1.2.15.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>

@@ -1043,17 +1043,39 @@ namespace CSV_Graph
             if (selectorResult == DialogResult.OK)
             {
                 FileDataList fileInformation = new FileDataList(int.Parse(Path.GetFileName(selector.selectedFolder)));
+                
                 try
                 {
                     DateTime startSelection = selector.selectionStart;
                     DateTime endSelection = selector.selectionEnd;
 
-                    if (DateTime.Compare(selector.selectionStart, selector.selectionEnd) == 0)
-                    {
-                        endSelection = selector.selectionEnd.AddMinutes(1);
-                    }
+                    //List<string> files = fileInformation.fileList.Where(fileData => DateTime.Compare(fileData.startTimeStamp, startSelection) >= 0 && DateTime.Compare(fileData.endTimeStamp, endSelection) <= 0 ).Select(fileData => Path.Combine(FileLocator.mainLocation, Path.GetFileName(selector.selectedFolder), fileData.fileName + ".dat")).ToList();
 
-                    List<string> files = fileInformation.fileList.Where(fileData => DateTime.Compare(fileData.startTimeStamp, startSelection) >= 0 && DateTime.Compare(fileData.endTimeStamp, endSelection) <= 0 ).Select(fileData => Path.Combine(FileLocator.mainLocation, Path.GetFileName(selector.selectedFolder), fileData.fileName + ".dat")).ToList();
+                    List<string> files = new List<string>();
+
+                    foreach (var fileData in fileInformation.fileList)
+                    {
+                        // Check if fileData is within the specified range
+                        if (fileData.startTimeStamp >= startSelection && fileData.endTimeStamp <= endSelection)
+                        {
+                            string filePath = Path.Combine(FileLocator.mainLocation, Path.GetFileName(selector.selectedFolder), fileData.fileName + ".dat");
+                            files.Add(filePath);
+                        }
+                        else
+                        {
+                            // Debugging information to understand the comparison results
+                            int comparisonResultStart = startSelection.CompareTo(fileData.startTimeStamp);
+                            int comparisonResultEnd = endSelection.CompareTo(fileData.endTimeStamp);
+
+                            MessageBox.Show($"Start: {comparisonResultStart}, End: {comparisonResultEnd}");
+
+                            // Check if fileData.endTimeStamp is within the range (debugging purpose)
+                            if (fileData.endTimeStamp >= startSelection && fileData.endTimeStamp <= endSelection)
+                            {
+                                MessageBox.Show($"End timestamp within the range: {fileData.fileName}");
+                            }
+                        }
+                    }
 
                     if (files.Count > 0)
                     {
@@ -1063,10 +1085,6 @@ namespace CSV_Graph
                         LoadGraph();
                         filterStart.Value = startSelection;
                         filterEnd.Value = endSelection;
-                        filterStart.MaxDate = endSelection;
-                        filterEnd.MaxDate = endSelection;
-                        filterStart.MinDate = startSelection;
-                        filterEnd.MinDate = startSelection;
                     }
                     else
                     {

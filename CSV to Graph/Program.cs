@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace CSV_Graph
@@ -16,6 +14,9 @@ namespace CSV_Graph
         {
             try
             {
+                CultureInfo culture = new CultureInfo("en-IN");
+                CultureInfo.DefaultThreadCurrentCulture = culture;
+                CultureInfo.DefaultThreadCurrentUICulture = culture;
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Splash splash = new Splash();
