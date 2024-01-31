@@ -254,6 +254,7 @@ namespace CSV_Graph
                 chart1.Series[ik].Points.DataBindXY(dt.DefaultView, dt.Columns[0].ColumnName, dt.DefaultView, dt.Columns[ik + 1].ColumnName);
             }
             chart1.Series.ResumeUpdates();
+
             chart1.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm dd-MM-yyyy";
 
             chart1.Annotations.Clear();
