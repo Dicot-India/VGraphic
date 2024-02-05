@@ -23,7 +23,7 @@ namespace CSV_Graph
         {
             if (ParentForm != null)
             {
-                ParentForm.change(textBox1.Text, textBox2.Text, textBox3.Text, textBox4.Text, numericUpDown1.Value, numericUpDown2.Value, checkBox1.Checked, textBox5.Text, textBox6.Text);
+                ParentForm.change(textBox1.Text, textBox3.Text, textBox4.Text, numericUpDown1.Value, checkBox1.Checked, textBox5.Text, textBox6.Text, checkBox2.Checked);
                 Close();
             }
         }
@@ -46,16 +46,7 @@ namespace CSV_Graph
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            if(checkBox1.Checked)
-            {
-                numericUpDown1.Enabled = true;
-                numericUpDown2.Enabled = true;
-            }
-            else
-            {
-                numericUpDown1.Enabled = false;
-                numericUpDown2.Enabled = false;
-            }
+            numericUpDown1.Enabled = checkBox1.Checked;
         }
     }
 }

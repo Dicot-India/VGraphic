@@ -4,15 +4,13 @@ using System;
 using System.Data;
 using System.IO;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
 using LicenseActivation;
 using Microsoft.Win32;
 using Image = iTextSharp.text.Image;
 using System.Linq;
 using System.Threading;
-using System.Globalization;
-using System.Data.OleDb;
 using System.Collections.Generic;
+using ScottPlot;
 
 namespace CSV_Graph
 {
@@ -21,23 +19,18 @@ namespace CSV_Graph
 
         string file;
 
-        int numberOfZoom = 0;
-
         string sos = "";
         string eos = "";
 
         public static bool licenseActivated = false;
 
-        int markerInterval = 200;
-        int markerSize = 10;
-
-        TextAnnotation RA = new TextAnnotation();
-        TextAnnotation RA1 = new TextAnnotation();
-        TextAnnotation RA2 = new TextAnnotation();
+        ScottPlot.WinForms.FormsPlot formsPlot = new ScottPlot.WinForms.FormsPlot();
 
         DataTable dt = new DataTable();
 
         string[] content = new string[0];
+
+        List<ScottPlot.Plottables.Signal> source = new List<ScottPlot.Plottables.Signal>();
 
         public Main()
         {
@@ -119,179 +112,20 @@ namespace CSV_Graph
 
         private void Main_Load(object sender, EventArgs e)
         {
-            chart1.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
-            chart1.ChartAreas[0].AxisY.ScaleView.Zoomable = true;
-            chart1.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
-            chart1.ChartAreas[0].CursorY.IsUserSelectionEnabled = true;
-            chart1.ChartAreas[0].CursorX.AutoScroll = true;
-            chart1.ChartAreas[0].CursorY.AutoScroll = true;
-            chart1.MouseWheel += Chart1_MouseWheel;
+            formsPlot.Dock = DockStyle.Fill;
+            tabControl.TabPages[0].Controls.Add(formsPlot);
+            formsPlot.MouseHover += FormsPlot_MouseMove;
         }
 
-        private void Chart1_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
+        private void FormsPlot_MouseMove(object sender, EventArgs e)
         {
-            var chart = (Chart)sender;
-            var xAxis = chart.ChartAreas[0].AxisX;
-            var yAxis = chart.ChartAreas[0].AxisY;
 
-            var xMin = xAxis.ScaleView.ViewMinimum;
-            var xMax = xAxis.ScaleView.ViewMaximum;
-            var yMin = yAxis.ScaleView.ViewMinimum;
-            var yMax = yAxis.ScaleView.ViewMaximum;
-
-            int IntervalX = 3;
-            int IntervalY = 3;
-            try
-            {
-                if (e.Delta < 0 && numberOfZoom > 0) // Scrolled down.
-                {
-                    var posXStart = xAxis.PixelPositionToValue(e.Location.X) - IntervalX * 2 / Math.Pow(2, numberOfZoom);
-                    var posXFinish = xAxis.PixelPositionToValue(e.Location.X) + IntervalX * 2 / Math.Pow(2, numberOfZoom);
-                    var posYStart = yAxis.PixelPositionToValue(e.Location.Y) - IntervalY * 2 / Math.Pow(2, numberOfZoom);
-                    var posYFinish = yAxis.PixelPositionToValue(e.Location.Y) + IntervalY * 2 / Math.Pow(2, numberOfZoom);
-
-                    if (posXStart < 0) posXStart = 0;
-                    if (posYStart < 0) posYStart = 0;
-                    if (posYFinish > yAxis.Maximum) posYFinish = yAxis.Maximum;
-                    if (posXFinish > xAxis.Maximum) posYFinish = xAxis.Maximum;
-                    xAxis.ScaleView.Zoom(posXStart, posXFinish);
-                    yAxis.ScaleView.Zoom(posYStart, posYFinish);
-                    numberOfZoom--;
-                }
-                else if (e.Delta < 0 && numberOfZoom == 0) //Last scrolled dowm
-                {
-                    yAxis.ScaleView.ZoomReset();
-                    xAxis.ScaleView.ZoomReset();
-                }
-                else if (e.Delta > 0) // Scrolled up.
-                {
-
-                    var posXStart = xAxis.PixelPositionToValue(e.Location.X) - IntervalX / Math.Pow(2, numberOfZoom);
-                    var posXFinish = xAxis.PixelPositionToValue(e.Location.X) + IntervalX / Math.Pow(2, numberOfZoom);
-                    var posYStart = yAxis.PixelPositionToValue(e.Location.Y) - IntervalY / Math.Pow(2, numberOfZoom);
-                    var posYFinish = yAxis.PixelPositionToValue(e.Location.Y) + IntervalY / Math.Pow(2, numberOfZoom);
-
-                    xAxis.ScaleView.Zoom(posXStart, posXFinish);
-                    yAxis.ScaleView.Zoom(posYStart, posYFinish);
-                    numberOfZoom++;
-                }
-
-                if (numberOfZoom < 0) numberOfZoom = 0;
-            }
-            catch { }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
         }
-
-        public void displ(bool vis)
-        {
-            label1.Visible = vis;
-        }
-
-        public void LoadExcel()
-        {
-
-            if (helpToolStripMenuItem.Enabled == true)
-            {
-                chart1.Series.Clear();
-            }
-
-            helpToolStripMenuItem.Enabled = true;
-
-            // Connection string for Excel
-            string connectionString = $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={OFD.FileName};Extended Properties='Excel 12.0 Xml;HDR=YES';";
-
-            // Get the name of the first sheet
-            using (OleDbConnection connection = new OleDbConnection(connectionString))
-            {
-                connection.Open();
-                DataTable sheetNames = connection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
-                string firstSheetName = sheetNames.Rows[0]["TABLE_NAME"].ToString();
-                connection.Close();
-
-                // Query to select all data from the first sheet
-                string query = $"SELECT * FROM [{firstSheetName}]";
-
-                using (OleDbCommand command = new OleDbCommand(query, connection))
-                {
-                    connection.Open();
-
-                    // Execute the command
-                    using (OleDbDataAdapter adapter = new OleDbDataAdapter(command))
-                    {
-                        dt = new DataTable();
-                        adapter.Fill(dt);
-                        dataView.DataSource = dt;
-                    }
-                }
-            }
-
-
-            chart1.ChartAreas.SuspendUpdates();
-            for (int i = 1; i < dt.Columns.Count; i++)
-            {
-                var series = new Series
-                {
-                    Name = dt.Columns[i].ColumnName,
-                    IsVisibleInLegend = true,
-                    ChartType = SeriesChartType.Spline,
-                    MarkerStyle = MarkerStyle.Circle,
-                    MarkerSize = 10,
-                    MarkerStep = 200,
-                    BorderWidth = 3,
-                };
-
-                // Add the series to the Chart control
-                chart1.Series.Add(series);
-            }
-
-            chart1.Series.SuspendUpdates();
-            for (int ik = 0; ik < dt.Columns.Count - 1; ik++)
-            {
-                chart1.Series[ik].Points.DataBindXY(dt.DefaultView, dt.Columns[0].ColumnName, dt.DefaultView, dt.Columns[ik + 1].ColumnName);
-            }
-            chart1.Series.ResumeUpdates();
-
-            chart1.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm dd-MM-yyyy";
-
-            chart1.Annotations.Clear();
-
-            sos = dt.Rows[0][0].ToString();
-            eos = dt.Rows[dt.Rows.Count - 1][0].ToString();
-
-
-            RA = new TextAnnotation();
-            RA.Alignment = System.Drawing.ContentAlignment.TopRight;
-            RA.ForeColor = System.Drawing.Color.Black;
-            RA.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            chart1.Annotations.Add(RA);
-
-            RA1 = new TextAnnotation();
-            RA1.ForeColor = System.Drawing.Color.Black;
-            RA1.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            RA1.Alignment = System.Drawing.ContentAlignment.TopRight;
-            chart1.Annotations.Add(RA1);
-
-            RA2 = new TextAnnotation();
-            RA2.ForeColor = System.Drawing.Color.Black;
-            RA2.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            RA2.Alignment = System.Drawing.ContentAlignment.TopRight;
-            chart1.Annotations.Add(RA2);
-
-            RA.Text = "Start: " + sos;
-            RA1.Text = "End: " + eos;
-            string timespanB = (DateTime.Parse(eos) - DateTime.Parse(sos)).ToString();
-            RA2.Text = "Duration: " + timespanB + " (hrs:min:sec)";
-            Ra2Pos();
-            Ra1Pos();
-            RaPos();
-
-            chart1.ChartAreas.ResumeUpdates();
-        }
-
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -309,11 +143,17 @@ namespace CSV_Graph
         {
             try
             {
-                if (System.Windows.Forms.MessageBox.Show("Are you sure you want to exit?", "Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                if (MessageBox.Show("Are you sure you want to exit?", "Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 {
                     e.Cancel = true;
                 }
-                else { Environment.Exit(0); }
+                else 
+                {
+                    dt.Clear();
+                    source.Clear();
+                    content = new string[0];
+                    Environment.Exit(0); 
+                }
             }
             catch { }
         }
@@ -338,7 +178,7 @@ namespace CSV_Graph
                 SFD.Filter = "PNG (*.png)|*.png";
                 if (SFD.ShowDialog() == DialogResult.OK)
                 {
-                    chart1.SaveImage(SFD.FileName, ChartImageFormat.Png);
+
                     System.Windows.MessageBox.Show("Graph image exported");
                 }
             }
@@ -355,7 +195,7 @@ namespace CSV_Graph
                 SFD.Filter = "PDF (*.pdf)|*.pdf";
                 if (SFD.ShowDialog() == DialogResult.OK)
                 {
-                    chart1.SaveImage("chartImage.png", ChartImageFormat.Png);
+
                     Document pdfDoc = new Document(PageSize.A4.Rotate(), 10f, 10f, 10f, 10f);
                     PdfWriter.GetInstance(pdfDoc, new FileStream(SFD.FileName, FileMode.Create));
                     pdfDoc.Open();
@@ -379,26 +219,7 @@ namespace CSV_Graph
 
         private void printToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (printDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    System.Drawing.Printing.PrinterSettings settings;
-                    settings = printDialog1.PrinterSettings;
-                    printDocument1 = chart1.Printing.PrintDocument;
-                    printDocument1.DefaultPageSettings.Landscape = true;
-                    System.Drawing.Printing.Margins margins = new System.Drawing.Printing.Margins(10, 10, 10, 10);
-                    printDocument1.DefaultPageSettings.Margins = margins;
-                    printDocument1.PrintController = new System.Drawing.Printing.StandardPrintController();
-                    printDocument1.Print();
-                    System.Windows.MessageBox.Show("Graph Printed");
-                }
-                printDocument1.Dispose();
-            }
-            catch
-            {
-                System.Windows.MessageBox.Show("Couldn't perform the requested action!");
-            }
+
         }
 
         private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -413,95 +234,39 @@ namespace CSV_Graph
             { }
         }
 
-        public void temp(string t, string f, string x, string y, decimal m, decimal msp, bool mvis, string ymax, string ymin)
+        public void temp(string title, string xLabel, string yLabel, decimal markerSize, bool markerVisible, string yMax, string yMin, bool autoScale)
         {
-            markerInterval = (int)msp;
-
-
-            if (!String.IsNullOrWhiteSpace(t))
+            foreach(var signal in source)
             {
-                var cht = new Title();
-                cht.Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold);
-                cht.Text = t;
-                cht.Name = "Title";
-                chart1.Titles.Add(cht);
+                signal.MaximumMarkerSize = markerVisible ? (int)markerSize : 0;
             }
 
-            if (!String.IsNullOrWhiteSpace(f))
+            if (autoScale)
             {
-                var cht = new Title();
-                cht.Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold);
-                cht.Text = f;
-                cht.Name = "Footer";
-                cht.Docking = Docking.Bottom;
-                chart1.Titles.Add(cht);
-            }
-
-            if (!String.IsNullOrWhiteSpace(x))
-            {
-                chart1.ChartAreas[0].AxisX.Title = x;
-            }
-
-            if (!String.IsNullOrWhiteSpace(y))
-            {
-                chart1.ChartAreas[0].AxisY.Title = y;
-            }
-
-            if (mvis)
-            {
-                foreach (var s in chart1.Series)
-                {
-                    s.MarkerSize = Convert.ToInt32(m);
-                }
+                formsPlot.Plot.Axes.AutoScale();
             }
             else
             {
-                foreach (var s in chart1.Series)
-                {
-                    s.MarkerStyle = MarkerStyle.None;
-                }
+                formsPlot.Plot.Axes.AutoScaleX();
+                formsPlot.Plot.Axes.SetLimitsY(int.Parse(yMin), int.Parse(yMax));
             }
-
-            if (true)
-            {
-                foreach (var s in chart1.Series)
-                {
-                    s.MarkerStep = Convert.ToInt32(msp);
-                }
-            }
-
-            if (!String.IsNullOrWhiteSpace(ymax) && !String.IsNullOrWhiteSpace(ymin))
-            {
-                if (int.Parse(ymax) > int.Parse(ymin))
-                {
-                    chart1.ChartAreas[0].AxisY.Maximum = int.Parse(ymax);
-                    chart1.ChartAreas[0].AxisY.Minimum = int.Parse(ymin);
-                }
-                else
-                {
-                    System.Windows.MessageBox.Show("Maximum value less than minimum! Could not perform this action");
-                    chart1.ChartAreas[0].AxisY.Maximum = Double.NaN; // sets the Maximum to NaN
-                    chart1.ChartAreas[0].AxisY.Minimum = Double.NaN; // sets the Minimum to NaN
-                    chart1.ChartAreas[0].RecalculateAxesScale();
-                }
-            }
-            else
-            {
-                chart1.ChartAreas[0].AxisY.Maximum = Double.NaN; // sets the Maximum to NaN
-                chart1.ChartAreas[0].AxisY.Minimum = Double.NaN; // sets the Minimum to NaN
-                chart1.ChartAreas[0].RecalculateAxesScale();
-            }
+            
+            formsPlot.Plot.Title(title);
+            formsPlot.Plot.YLabel(yLabel);
+            formsPlot.Plot.XLabel(xLabel);
+            formsPlot.Refresh();
         }
 
-        public void change(string t, string f, string x, string y, decimal m, decimal msp, bool mvis, string ymax, string ymin)
+        public void change(string title, string x, string y, decimal markerSize, bool markerVisible, string ymax, string ymin, bool autoScale)
         {
             try
             {
-                temp(t, f, x, y, m, msp, mvis, ymax, ymin);
+                temp(title, x, y, markerSize, markerVisible, ymax, ymin, autoScale);
             }
-            catch
+            catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("There was some error performing the action");
+                MessageBox.Show(ex.ToString());
+                //MessageBox.Show("There was some error performing the action");
             }
         }
 
@@ -511,7 +276,8 @@ namespace CSV_Graph
             {
                 if (helpToolStripMenuItem.Enabled == true)
                 {
-                    chart1.Series.Clear();
+                    source.Clear();
+                    formsPlot.Plot.Clear();
                 }
 
                 helpToolStripMenuItem.Enabled = true;
@@ -543,106 +309,61 @@ namespace CSV_Graph
                 string[] headers = content[dataStartingIndex].Split(',');
 
                 string tn = headers[0];
-
                 int len = headers.Length - 1;
 
                 dt = new DataTable();
 
-                for (int i = 0; i < headers.Length; i++)
+                foreach (string header in headers)
                 {
-                    dt.Columns.Add(headers[i].ToLower(), typeof(string));
-                    if (i > 0)
-                    {
-                        var series = new Series
-                        {
-                            Name = headers[i],
-                            IsVisibleInLegend = true,
-                            ChartType = SeriesChartType.Spline,
-                            MarkerStyle = MarkerStyle.Circle,
-                            MarkerSize = 10,
-                            MarkerStep = (int)(content.Length - 1) / 10,
-                            BorderWidth = 3,
-                        };
-
-                        chart1.Series.Add(series);
-                    }
+                    dt.Columns.Add(header);
                 }
 
-                DataRow Row;
                 for (int i = dataStartingIndex + 1; i < content.Length; i++)
                 {
-                    headers = content[i].Split(',');
-                    Row = dt.NewRow();
-                    for (int f = 0; f < headers.Length; f++)
+                    string[] data = content[i].Split(',');
+                    if (data.Length == headers.Length)
                     {
-                        Row[f] = headers[f];
+                        dt.Rows.Add(data);
                     }
-                    dt.Rows.Add(Row);
                 }
 
                 dataView.DataSource = dt;
 
-                sos = content[dataStartingIndex + 1].Split(',')[0];
-                eos = content[content.Length - 1 - dataStartingIndex].Split(',')[0];
-                DateTime startTS = new DateTime();
-                DateTime endTS = new DateTime();
-                string timespanB = "";
-                try
+                DateTime[] dateTimes = dt.AsEnumerable().Select(row => row.Field<string>(0)).Where(str => DateTime.TryParse(str, out _)).Select(str => DateTime.Parse(str)).ToArray();
+                double[] dateTimesOADate = dateTimes.Select(dt => dt.ToOADate()).ToArray();
+                for (int i = 1; i < headers.Length; i++)
                 {
-                    if (DateTime.TryParse(sos, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out startTS) && DateTime.TryParse(eos, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out endTS))
+                    double[] data = dt.AsEnumerable().Select(row => row.Field<string>(i)).Where(strValue => float.TryParse(strValue, out _)).Select(strValue => double.Parse(strValue)).ToArray();
+                    if(dateTimesOADate.Length == data.Length)
                     {
-                        filterStart.MinDate = startTS;
-                        filterStart.MaxDate = endTS;
-                        filterStart.Value = startTS;
-                        filterEnd.MinDate = startTS;
-                        filterEnd.MaxDate = endTS;
-                        filterEnd.Value = endTS;
-                        timespanB = (endTS - startTS).ToString();
+                        var signal = formsPlot.Plot.Add.Signal(data);
+                        
+                        signal.Label = headers[i];
+                        signal.Data.XOffset = dateTimesOADate[0];
+                        signal.Data.Period = dateTimesOADate[1] - dateTimesOADate[0];
+                        signal.MaximumMarkerSize = 10;
+
+                        source.Add(signal);
                     }
                 }
-                catch (Exception Ex)
-                {
-                    System.Windows.Forms.MessageBox.Show(Ex.ToString(), "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                formsPlot.Plot.Legend.IsVisible = true;
+                formsPlot.Plot.Axes.DateTimeTicksBottom();
+                formsPlot.Plot.Axes.AutoScale();
+                formsPlot.Plot.Render();
+                formsPlot.Refresh();
 
-                chart1.Series.SuspendUpdates();
-                for (int ik = 0; ik < len; ik++)
-                {
-                    chart1.Series[ik].Points.DataBindXY(dt.DefaultView, tn, dt.DefaultView, content[dataStartingIndex].Split(',')[(ik + 1)]);
-                }
-                chart1.Series.ResumeUpdates();
-
-                chart1.Annotations.Clear();
-
-                RA = new TextAnnotation();
-                RA.Alignment = System.Drawing.ContentAlignment.TopRight;
-                RA.ForeColor = System.Drawing.Color.Black;
-                RA.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-                chart1.Annotations.Add(RA);
-
-                RA1 = new TextAnnotation();
-                RA1.ForeColor = System.Drawing.Color.Black;
-                RA1.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-                RA1.Alignment = System.Drawing.ContentAlignment.TopRight;
-                chart1.Annotations.Add(RA1);
-
-                RA2 = new TextAnnotation();
-                RA2.ForeColor = System.Drawing.Color.Black;
-                RA2.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-                RA2.Alignment = System.Drawing.ContentAlignment.TopRight;
-                chart1.Annotations.Add(RA2);
-
-                RA.Text = "Start: " + sos;
-                RA1.Text = "End: " + eos;
-                RA2.Text = "Duration: " + timespanB + " (hrs:min:sec)";
-                Ra2Pos();
-                Ra1Pos();
-                RaPos();
-
+                DateTime startTS = dateTimes[0];
+                DateTime endTS = dateTimes[dateTimes.Length - 1];
+                string timespanB = "";
+                timespanB = (endTS - startTS).ToString();
+                filterStart.MinDate = startTS; filterStart.MaxDate = endTS;
+                filterEnd.MinDate = startTS; filterEnd.MaxDate = endTS;
+                filterStart.Value = startTS;
+                filterEnd.Value = endTS;
                 if (list != null)
                 {
                     string newFileLocation = Path.Combine(FileLocator.mainLocation, DeviceID.ToString(), Path.GetFileNameWithoutExtension(file) + ".dat");
-                    using (File.Create(Path.Combine(FileLocator.mainLocation, DeviceID.ToString(), file + ".dat"))) { }
+                    using (File.Create(Path.Combine(FileLocator.mainLocation, DeviceID.ToString(), Path.GetFileNameWithoutExtension(file) + ".dat"))) { }
                     using (StreamWriter sw = new StreamWriter(newFileLocation, false))
                     {
                         for (int i = dataStartingIndex; i < content.Length; i++)
@@ -662,49 +383,6 @@ namespace CSV_Graph
             }
         }
 
-        void RaPos()
-        {
-            if (RA == null) return;
-            RA.X = 0.5;
-            RA.Y = 0.5;
-            RA.Width = 15;
-            RA.Height = 4;
-        }
-
-        void Ra1Pos()
-        {
-            if (RA1 == null) return;
-            RA1.X = 15;
-            RA1.Y = 0.5;
-            RA1.Width = 15;
-            RA1.Height = 4;
-        }
-
-        void Ra2Pos()
-        {
-            if (RA2 == null) return;
-            RA2.X = 30;
-            RA2.Y = 0.5;
-            RA2.Width = 15;
-            RA2.Height = 4;
-        }
-
-        private void chart1_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
-        {
-            var result = chart1.HitTest(e.X, e.Y);
-            if (result.ChartElementType == ChartElementType.LegendItem)
-            {
-                if (result.Series.Color == System.Drawing.Color.Transparent)
-                {
-                    result.Series.Color = System.Drawing.Color.Empty;
-                }
-                else
-                {
-                    result.Series.Color = System.Drawing.Color.Transparent;
-                }
-            }
-        }
-
         private void splitContainer1_Panel1_Paint(object sender, PaintEventArgs e)
         {
 
@@ -712,26 +390,63 @@ namespace CSV_Graph
 
         private void filterButton_Click(object sender, EventArgs e)
         {
-
             try
             {
-
-                if (dt != null)
+                if (dt != null && filterStart.Value < filterEnd.Value)
                 {
-                    var startIndex = from row in dt.AsEnumerable()
-                                     where row.Field<string>(0) == filterStart.Value.ToString("hh:mm:ss tt dd-MM-yyyy")
-                                     select dt.Rows.IndexOf(row);
-                    var endIndex = from row in dt.AsEnumerable()
-                                   where row.Field<string>(0) == filterEnd.Value.ToString("hh:mm:ss tt dd-MM-yyyy")
-                                   select dt.Rows.IndexOf(row);
+                    var startIndex = -1;
+                    var endIndex = -1;
 
-                    DisplayRowsInRange(startIndex.First(), endIndex.First());
+                    // Parse filterStart and filterEnd as DateTime objects
+                    DateTime startDateTime = filterStart.Value;
+                    DateTime endDateTime = filterEnd.Value;
+
+                    // Find the index of the row with a datetime value equal to or greater than filterStart
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        DateTime rowDateTime = Convert.ToDateTime(dt.Rows[i][0]); // Assuming column 0 contains datetime values
+
+                        if (rowDateTime >= startDateTime)
+                        {
+                            startIndex = i;
+                            break;
+                        }
+                    }
+
+                    // Find the index of the row with a datetime value equal to or greater than filterEnd
+                    for (int i = startIndex; i < dt.Rows.Count; i++)
+                    {
+                        DateTime rowDateTime = Convert.ToDateTime(dt.Rows[i][0]); // Assuming column 0 contains datetime values
+
+                        if (rowDateTime >= endDateTime)
+                        {
+                            endIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (startIndex != -1 && endIndex != -1)
+                    {
+                        DisplayRowsInRange(startIndex, endIndex);
+                    }
+                    else
+                    {
+                        // Handle case when no matching rows are found
+                        MessageBox.Show("No matching rows found.");
+                    }
+                }
+                else
+                {
+                    // Handle case when dt is null or filterStart is not less than filterEnd
+                    MessageBox.Show("Invalid input values.");
                 }
             }
-            catch (Exception frog)
+            catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(frog.Message);
+                // Handle any other exceptions
+                MessageBox.Show(ex.Message);
             }
+
         }
 
         private void DisplayRowsInRange(int startRow, int endRow)
@@ -748,80 +463,13 @@ namespace CSV_Graph
             // Set the DataSource property of DataGridView to the filtered DataTable
             dataView.DataSource = filteredDataTable;
 
-            chart1.Series.SuspendUpdates();
-            for (int ik = 0; ik < filteredDataTable.Columns.Count - 1; ik++)
-            {
-                chart1.Series[ik].Points.DataBindXY(filteredDataTable.DefaultView, filteredDataTable.Columns[ik].ColumnName, filteredDataTable.DefaultView, content[0].Split(',')[(ik + 1)]);
-            }
-            chart1.Series.ResumeUpdates();
 
-            chart1.Annotations.Clear();
-
-            RA = new TextAnnotation();
-            RA.Alignment = System.Drawing.ContentAlignment.TopRight;
-            RA.ForeColor = System.Drawing.Color.Black;
-            RA.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            chart1.Annotations.Add(RA);
-
-            RA1 = new TextAnnotation();
-            RA1.ForeColor = System.Drawing.Color.Black;
-            RA1.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            RA1.Alignment = System.Drawing.ContentAlignment.TopRight;
-            chart1.Annotations.Add(RA1);
-
-            RA2 = new TextAnnotation();
-            RA2.ForeColor = System.Drawing.Color.Black;
-            RA2.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            RA2.Alignment = System.Drawing.ContentAlignment.TopRight;
-            chart1.Annotations.Add(RA2);
-
-            RA.Text = "Start: " + dt.Rows[startRow][0].ToString();
-            RA1.Text = "End: " + dt.Rows[endRow][0].ToString();
-            string timespanB = (DateTime.Parse(dt.Rows[endRow][0].ToString()) - DateTime.Parse(dt.Rows[startRow][0].ToString())).ToString();
-            RA2.Text = "Duration: " + timespanB + " (hrs:min:sec)";
-            Ra2Pos();
-            Ra1Pos();
-            RaPos();
         }
 
         private void clearFilter_Click(object sender, EventArgs e)
         {
             dataView.DataSource = dt;
-
-            chart1.Series.SuspendUpdates();
-            for (int ik = 0; ik < dt.Columns.Count - 1; ik++)
-            {
-                chart1.Series[ik].Points.DataBindXY(dt.DefaultView, dt.Columns[ik].ColumnName, dt.DefaultView, content[0].Split(',')[(ik + 1)]);
-            }
-            chart1.Series.ResumeUpdates();
-
-            chart1.Annotations.Clear();
-
-            RA = new TextAnnotation();
-            RA.Alignment = System.Drawing.ContentAlignment.TopRight;
-            RA.ForeColor = System.Drawing.Color.Black;
-            RA.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            chart1.Annotations.Add(RA);
-
-            RA1 = new TextAnnotation();
-            RA1.ForeColor = System.Drawing.Color.Black;
-            RA1.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            RA1.Alignment = System.Drawing.ContentAlignment.TopRight;
-            chart1.Annotations.Add(RA1);
-
-            RA2 = new TextAnnotation();
-            RA2.ForeColor = System.Drawing.Color.Black;
-            RA2.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            RA2.Alignment = System.Drawing.ContentAlignment.TopRight;
-            chart1.Annotations.Add(RA2);
-
-            RA.Text = "Start: " + sos;
-            RA1.Text = "End: " + eos;
-            string timespanB = (DateTime.Parse(eos) - DateTime.Parse(sos)).ToString();
-            RA2.Text = "Duration: " + timespanB + " (hrs:min:sec)";
-            Ra2Pos();
-            Ra1Pos();
-            RaPos();
+            dataView.Refresh();
         }
 
         private void exportPDFButton_Click(object sender, EventArgs e)
@@ -1021,13 +669,9 @@ namespace CSV_Graph
                 file = OFD.FileName;
                 try
                 {
-                    if (Path.GetExtension(OFD.FileName).ToLower() == ".csv")
+                    if (Path.GetExtension(OFD.FileName).ToLower() == ".dat")
                     {
                         openf();
-                    }
-                    else
-                    {
-                        LoadExcel();
                     }
                 }
                 catch (Exception ex)
@@ -1044,7 +688,7 @@ namespace CSV_Graph
             if (selectorResult == DialogResult.OK)
             {
                 FileDataList fileInformation = new FileDataList(int.Parse(Path.GetFileName(selector.selectedFolder)));
-                
+
                 try
                 {
                     DateTime startSelection = selector.selectionStart;
@@ -1177,69 +821,33 @@ namespace CSV_Graph
         {
             if (helpToolStripMenuItem.Enabled == true)
             {
-                chart1.Series.Clear();
+
             }
 
             helpToolStripMenuItem.Enabled = true;
-            chart1.ChartAreas.SuspendUpdates();
+
             for (int i = 1; i < dt.Columns.Count; i++)
             {
-                var series = new Series
-                {
-                    Name = dt.Columns[i].ColumnName,
-                    IsVisibleInLegend = true,
-                    ChartType = SeriesChartType.Spline,
-                    MarkerStyle = MarkerStyle.Circle,
-                    MarkerSize = 10,
-                    MarkerStep = (int)(dt.Rows.Count - 1) / 10,
-                    BorderWidth = 3,
-                };
+                //var series = new Series
+                //{
+                //    Name = dt.Columns[i].ColumnName,
+                //    IsVisibleInLegend = true,
+                //    ChartType = SeriesChartType.Spline,
+                //    MarkerStyle = MarkerStyle.Circle,
+                //    MarkerSize = 10,
+                //    MarkerStep = (int)(dt.Rows.Count - 1) / 10,
+                //    BorderWidth = 3,
+                //};
 
                 // Add the series to the Chart control
-                chart1.Series.Add(series);
+
             }
 
-            chart1.Series.SuspendUpdates();
-            for (int ik = 0; ik < dt.Columns.Count - 1; ik++)
-            {
-                chart1.Series[ik].Points.DataBindXY(dt.DefaultView, dt.Columns[0].ColumnName, dt.DefaultView, dt.Columns[ik + 1].ColumnName);
-            }
-            chart1.Series.ResumeUpdates();
-            chart1.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm dd-MM-yyyy";
 
-            chart1.Annotations.Clear();
 
             sos = dt.Rows[0][0].ToString();
             eos = dt.Rows[dt.Rows.Count - 1][0].ToString();
 
-
-            RA = new TextAnnotation();
-            RA.Alignment = System.Drawing.ContentAlignment.TopRight;
-            RA.ForeColor = System.Drawing.Color.Black;
-            RA.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            chart1.Annotations.Add(RA);
-
-            RA1 = new TextAnnotation();
-            RA1.ForeColor = System.Drawing.Color.Black;
-            RA1.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            RA1.Alignment = System.Drawing.ContentAlignment.TopRight;
-            chart1.Annotations.Add(RA1);
-
-            RA2 = new TextAnnotation();
-            RA2.ForeColor = System.Drawing.Color.Black;
-            RA2.Font = new System.Drawing.Font(label1.Font.Name, 10, label1.Font.Style, label1.Font.Unit);
-            RA2.Alignment = System.Drawing.ContentAlignment.TopRight;
-            chart1.Annotations.Add(RA2);
-
-            RA.Text = "Start: " + sos;
-            RA1.Text = "End: " + eos;
-            string timespanB = (DateTime.Parse(eos) - DateTime.Parse(sos)).ToString();
-            RA2.Text = "Duration: " + timespanB + " (hrs:min:sec)";
-            Ra2Pos();
-            Ra1Pos();
-            RaPos();
-
-            chart1.ChartAreas.ResumeUpdates();
         }
     }
 
