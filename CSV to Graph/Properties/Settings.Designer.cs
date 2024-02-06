@@ -58,5 +58,41 @@ namespace CSV_Graph.Properties {
                 this["Logo"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string chartLogo {
+            get {
+                return ((string)(this["chartLogo"]));
+            }
+            set {
+                this["chartLogo"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool chartStat {
+            get {
+                return ((bool)(this["chartStat"]));
+            }
+            set {
+                this["chartStat"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool tableStat {
+            get {
+                return ((bool)(this["tableStat"]));
+            }
+            set {
+                this["tableStat"] = value;
+            }
+        }
     }
 }

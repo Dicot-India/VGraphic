@@ -59,6 +59,12 @@
             this.filterEnd = new System.Windows.Forms.DateTimePicker();
             this.filterStart = new System.Windows.Forms.DateTimePicker();
             this.dataView = new System.Windows.Forms.DataGridView();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.ChannelName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Minimum = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Maximum = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Average = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Menu.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -67,6 +73,8 @@
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataView)).BeginInit();
+            this.tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // Menu
@@ -79,8 +87,8 @@
             this.aboutToolStripMenuItem});
             this.Menu.Location = new System.Drawing.Point(0, 0);
             this.Menu.Name = "Menu";
-            this.Menu.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
-            this.Menu.Size = new System.Drawing.Size(1656, 28);
+            this.Menu.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
+            this.Menu.Size = new System.Drawing.Size(1348, 24);
             this.Menu.TabIndex = 0;
             this.Menu.Text = "menuStrip1";
             // 
@@ -90,7 +98,7 @@
             this.openToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(46, 24);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(37, 20);
             this.toolStripMenuItem1.Text = "File";
             // 
             // openToolStripMenuItem
@@ -99,28 +107,28 @@
             this.fileToolStripMenuItem,
             this.databaseToolStripMenuItem});
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.fileToolStripMenuItem.Text = "File";
             this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
             // 
             // databaseToolStripMenuItem
             // 
             this.databaseToolStripMenuItem.Name = "databaseToolStripMenuItem";
-            this.databaseToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.databaseToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.databaseToolStripMenuItem.Text = "Database";
             this.databaseToolStripMenuItem.Click += new System.EventHandler(this.databaseToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -132,7 +140,7 @@
             this.optionsToolStripMenuItem});
             this.helpToolStripMenuItem.Enabled = false;
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(63, 24);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(51, 20);
             this.helpToolStripMenuItem.Text = "Graph";
             // 
             // saveAspngToolStripMenuItem
@@ -141,41 +149,41 @@
             this.pngToolStripMenuItem,
             this.pdfToolStripMenuItem});
             this.saveAspngToolStripMenuItem.Name = "saveAspngToolStripMenuItem";
-            this.saveAspngToolStripMenuItem.Size = new System.Drawing.Size(144, 26);
+            this.saveAspngToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
             this.saveAspngToolStripMenuItem.Text = "Save As";
             // 
             // pngToolStripMenuItem
             // 
             this.pngToolStripMenuItem.Name = "pngToolStripMenuItem";
-            this.pngToolStripMenuItem.Size = new System.Drawing.Size(121, 26);
+            this.pngToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
             this.pngToolStripMenuItem.Text = ".png";
             this.pngToolStripMenuItem.Click += new System.EventHandler(this.pngToolStripMenuItem_Click);
             // 
             // pdfToolStripMenuItem
             // 
             this.pdfToolStripMenuItem.Name = "pdfToolStripMenuItem";
-            this.pdfToolStripMenuItem.Size = new System.Drawing.Size(121, 26);
+            this.pdfToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
             this.pdfToolStripMenuItem.Text = ".pdf";
             this.pdfToolStripMenuItem.Click += new System.EventHandler(this.pdfToolStripMenuItem_Click);
             // 
             // printToolStripMenuItem
             // 
             this.printToolStripMenuItem.Name = "printToolStripMenuItem";
-            this.printToolStripMenuItem.Size = new System.Drawing.Size(144, 26);
-            this.printToolStripMenuItem.Text = "Print";
+            this.printToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.printToolStripMenuItem.Text = "PDF Setup";
             this.printToolStripMenuItem.Click += new System.EventHandler(this.printToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(144, 26);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
             this.optionsToolStripMenuItem.Text = "Options";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(64, 24);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -192,22 +200,23 @@
             // 
             this.tabControl.Controls.Add(this.tabPage1);
             this.tabControl.Controls.Add(this.tabPage2);
+            this.tabControl.Controls.Add(this.tabPage3);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(254)));
-            this.tabControl.Location = new System.Drawing.Point(0, 28);
+            this.tabControl.Location = new System.Drawing.Point(0, 24);
             this.tabControl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(1656, 869);
+            this.tabControl.Size = new System.Drawing.Size(1348, 822);
             this.tabControl.TabIndex = 3;
             // 
             // tabPage1
             // 
-            this.tabPage1.Location = new System.Drawing.Point(4, 29);
+            this.tabPage1.Location = new System.Drawing.Point(4, 25);
             this.tabPage1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabPage1.Size = new System.Drawing.Size(1648, 836);
+            this.tabPage1.Size = new System.Drawing.Size(1340, 793);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Graph";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -215,11 +224,11 @@
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.splitContainer);
-            this.tabPage2.Location = new System.Drawing.Point(4, 29);
+            this.tabPage2.Location = new System.Drawing.Point(4, 25);
             this.tabPage2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabPage2.Size = new System.Drawing.Size(1648, 836);
+            this.tabPage2.Size = new System.Drawing.Size(1340, 793);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Table";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -247,18 +256,17 @@
             // splitContainer.Panel2
             // 
             this.splitContainer.Panel2.Controls.Add(this.dataView);
-            this.splitContainer.Size = new System.Drawing.Size(1642, 832);
-            this.splitContainer.SplitterDistance = 41;
+            this.splitContainer.Size = new System.Drawing.Size(1334, 789);
+            this.splitContainer.SplitterDistance = 56;
             this.splitContainer.SplitterWidth = 5;
             this.splitContainer.TabIndex = 0;
             // 
             // button2
             // 
-            this.button2.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.button2.Location = new System.Drawing.Point(1498, 9);
+            this.button2.Location = new System.Drawing.Point(1099, 7);
             this.button2.Margin = new System.Windows.Forms.Padding(4);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(137, 27);
+            this.button2.Size = new System.Drawing.Size(120, 46);
             this.button2.TabIndex = 7;
             this.button2.Text = "PDF Setup";
             this.button2.UseVisualStyleBackColor = true;
@@ -266,11 +274,10 @@
             // 
             // button1
             // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.button1.Location = new System.Drawing.Point(1209, 9);
+            this.button1.Location = new System.Drawing.Point(782, 7);
             this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(137, 27);
+            this.button1.Size = new System.Drawing.Size(150, 46);
             this.button1.TabIndex = 6;
             this.button1.Text = "Export CSV";
             this.button1.UseVisualStyleBackColor = true;
@@ -278,10 +285,10 @@
             // 
             // clearFilter
             // 
-            this.clearFilter.Location = new System.Drawing.Point(731, 7);
+            this.clearFilter.Location = new System.Drawing.Point(655, 7);
             this.clearFilter.Margin = new System.Windows.Forms.Padding(4);
             this.clearFilter.Name = "clearFilter";
-            this.clearFilter.Size = new System.Drawing.Size(137, 28);
+            this.clearFilter.Size = new System.Drawing.Size(119, 46);
             this.clearFilter.TabIndex = 5;
             this.clearFilter.Text = "Clear Filter";
             this.clearFilter.UseVisualStyleBackColor = true;
@@ -290,20 +297,19 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(281, 14);
+            this.label2.Location = new System.Drawing.Point(246, 14);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(23, 20);
+            this.label2.Size = new System.Drawing.Size(20, 17);
             this.label2.TabIndex = 4;
             this.label2.Text = "to";
             // 
             // exportPDFButton
             // 
-            this.exportPDFButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.exportPDFButton.Location = new System.Drawing.Point(1354, 9);
+            this.exportPDFButton.Location = new System.Drawing.Point(940, 6);
             this.exportPDFButton.Margin = new System.Windows.Forms.Padding(4);
             this.exportPDFButton.Name = "exportPDFButton";
-            this.exportPDFButton.Size = new System.Drawing.Size(137, 27);
+            this.exportPDFButton.Size = new System.Drawing.Size(151, 46);
             this.exportPDFButton.TabIndex = 3;
             this.exportPDFButton.Text = "Export PDF";
             this.exportPDFButton.UseVisualStyleBackColor = true;
@@ -311,10 +317,10 @@
             // 
             // filterButton
             // 
-            this.filterButton.Location = new System.Drawing.Point(585, 7);
+            this.filterButton.Location = new System.Drawing.Point(528, 7);
             this.filterButton.Margin = new System.Windows.Forms.Padding(4);
             this.filterButton.Name = "filterButton";
-            this.filterButton.Size = new System.Drawing.Size(137, 28);
+            this.filterButton.Size = new System.Drawing.Size(119, 46);
             this.filterButton.TabIndex = 2;
             this.filterButton.Text = "Filter";
             this.filterButton.UseVisualStyleBackColor = true;
@@ -324,20 +330,20 @@
             // 
             this.filterEnd.CustomFormat = "hh:mm:ss tt dd/MM/yyyy";
             this.filterEnd.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.filterEnd.Location = new System.Drawing.Point(311, 9);
+            this.filterEnd.Location = new System.Drawing.Point(273, 9);
             this.filterEnd.Margin = new System.Windows.Forms.Padding(4);
             this.filterEnd.Name = "filterEnd";
-            this.filterEnd.Size = new System.Drawing.Size(265, 26);
+            this.filterEnd.Size = new System.Drawing.Size(232, 23);
             this.filterEnd.TabIndex = 1;
             // 
             // filterStart
             // 
             this.filterStart.CustomFormat = "hh:mm:ss tt dd/MM/yyyy";
             this.filterStart.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.filterStart.Location = new System.Drawing.Point(7, 9);
+            this.filterStart.Location = new System.Drawing.Point(6, 9);
             this.filterStart.Margin = new System.Windows.Forms.Padding(4);
             this.filterStart.Name = "filterStart";
-            this.filterStart.Size = new System.Drawing.Size(265, 26);
+            this.filterStart.Size = new System.Drawing.Size(232, 23);
             this.filterStart.TabIndex = 0;
             // 
             // dataView
@@ -348,16 +354,68 @@
             this.dataView.Margin = new System.Windows.Forms.Padding(4);
             this.dataView.Name = "dataView";
             this.dataView.RowHeadersWidth = 51;
-            this.dataView.Size = new System.Drawing.Size(1642, 786);
+            this.dataView.Size = new System.Drawing.Size(1334, 728);
             this.dataView.TabIndex = 0;
+            this.dataView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataView_CellContentClick);
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.dataGridView1);
+            this.tabPage3.Location = new System.Drawing.Point(4, 25);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(1340, 793);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Statistics";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ChannelName,
+            this.Minimum,
+            this.Maximum,
+            this.Average});
+            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridView1.Location = new System.Drawing.Point(3, 3);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.RowTemplate.Height = 24;
+            this.dataGridView1.Size = new System.Drawing.Size(1334, 787);
+            this.dataGridView1.TabIndex = 0;
+            // 
+            // ChannelName
+            // 
+            this.ChannelName.HeaderText = "Channel Name";
+            this.ChannelName.Name = "ChannelName";
+            this.ChannelName.ReadOnly = true;
+            // 
+            // Minimum
+            // 
+            this.Minimum.HeaderText = "Minimum Value";
+            this.Minimum.Name = "Minimum";
+            this.Minimum.ReadOnly = true;
+            // 
+            // Maximum
+            // 
+            this.Maximum.HeaderText = "Maximum Value";
+            this.Maximum.Name = "Maximum";
+            this.Maximum.ReadOnly = true;
+            // 
+            // Average
+            // 
+            this.Average.HeaderText = "Average Value";
+            this.Average.Name = "Average";
+            this.Average.ReadOnly = true;
             // 
             // Main
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1656, 897);
+            this.ClientSize = new System.Drawing.Size(1348, 846);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.Menu);
+            this.Font = new System.Drawing.Font("Arial", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.Menu;
             this.Margin = new System.Windows.Forms.Padding(4);
@@ -377,6 +435,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataView)).EndInit();
+            this.tabPage3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -414,5 +474,11 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem databaseToolStripMenuItem;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ChannelName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Minimum;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Maximum;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Average;
     }
 }

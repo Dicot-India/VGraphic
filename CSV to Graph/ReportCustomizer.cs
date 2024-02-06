@@ -19,6 +19,7 @@ namespace CSV_Graph
             {
                 pictureBox1.Image = Image.FromFile(imagePath);
             }
+            checkBox1.Checked = Properties.Settings.Default.tableStat;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -26,6 +27,7 @@ namespace CSV_Graph
             Properties.Settings.Default.Title = titleText.Text;
             Properties.Settings.Default.Subtitle = subTitleText.Text;
             Properties.Settings.Default.Logo = imagePath;
+            Properties.Settings.Default.tableStat = checkBox1.Checked;
             Properties.Settings.Default.Save();
             MessageBox.Show("The changes were saved", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Close();

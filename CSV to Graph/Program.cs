@@ -17,6 +17,8 @@ namespace CSV_Graph
                 CultureInfo culture = new CultureInfo("en-IN");
                 CultureInfo.DefaultThreadCurrentCulture = culture;
                 CultureInfo.DefaultThreadCurrentUICulture = culture;
+                CultureInfo.CurrentCulture = culture;
+                CultureInfo.CurrentUICulture = culture;
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Splash splash = new Splash();

@@ -35,8 +35,8 @@
     <MinimumRequiredVersion>1.0.10.5</MinimumRequiredVersion>
     <WebPage>VGraphic - Download.html</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>18</ApplicationRevision>
-    <ApplicationVersion>1.2.15.%2a</ApplicationVersion>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>1.2.16.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -164,6 +164,12 @@
     <Compile Include="About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
+    <Compile Include="chartSetup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="chartSetup.Designer.cs">
+      <DependentUpon>chartSetup.cs</DependentUpon>
+    </Compile>
     <Compile Include="dateTimeSelector.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -199,6 +205,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="chartSetup.resx">
+      <DependentUpon>chartSetup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="dateTimeSelector.resx">
       <DependentUpon>dateTimeSelector.cs</DependentUpon>

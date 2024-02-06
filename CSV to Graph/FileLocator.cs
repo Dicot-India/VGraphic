@@ -73,8 +73,8 @@ namespace CSV_Graph
             {
                 fileInfo info = new fileInfo
                 {
-                    startTimeStamp = start,
-                    endTimeStamp = end,
+                    startTimeStamp = start.Ticks,
+                    endTimeStamp = end.Ticks,
                     channelList = Channels,
                     channels = Channels.Count,
                     fileName = FileName
@@ -89,8 +89,8 @@ namespace CSV_Graph
 
     [Serializable]
     public struct fileInfo {
-        public DateTime startTimeStamp;
-        public DateTime endTimeStamp;
+        public long startTimeStamp;
+        public long endTimeStamp;
         public int channels;
         public List<string> channelList;
         public string fileName;
