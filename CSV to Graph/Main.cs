@@ -34,7 +34,7 @@ namespace CSV_Graph
 
         double y_value = 0;
 
-        System.Windows.Forms.Label label = new System.Windows.Forms.Label();
+        System.Windows.Forms.Label labelTip = new System.Windows.Forms.Label();
 
         DataTable dtCopy = new DataTable();
 
@@ -124,17 +124,12 @@ namespace CSV_Graph
             formsPlot.Dock = DockStyle.Fill;
             tabControl.TabPages[0].Controls.Add(formsPlot);
             formsPlot.MouseMove += formsPlot_MouseMoved;
-            formsPlot.MouseHover += FormsPlot_MouseHover;
-            label.BackColor = System.Drawing.Color.White;
-            label.Font = new System.Drawing.Font("Times New Roman", 10f);
-            label.ForeColor = System.Drawing.Color.Black;
-            label.Size = new System.Drawing.Size(200, 17);
-
-        }
-
-        private void FormsPlot_MouseHover(object sender, EventArgs e)
-        {
-
+            labelTip.BackColor = System.Drawing.Color.White;
+            labelTip.Font = new System.Drawing.Font("Times New Roman", 10f);
+            labelTip.ForeColor = System.Drawing.Color.Black;
+            labelTip.Size = new System.Drawing.Size(200, 40);
+            formsPlot.Controls.Add(labelTip);
+            formsPlot.Cursor = Cursors.Cross;
         }
 
         private void formsPlot_MouseMoved(object sender, MouseEventArgs e)
@@ -145,9 +140,9 @@ namespace CSV_Graph
                 Coordinates mouseCoordinates = formsPlot.Plot.GetCoordinates(mousePixel);
                 x_value = DateTime.FromOADate(mouseCoordinates.X);
                 y_value = mouseCoordinates.Y;
-                label.Text = $"Time={x_value} Value={y_value}";
-                label.Location = e.Location;
-                label.BringToFront();
+                labelTip.Text = $"Time = {x_value.ToString("HH:mm:ss dd/MM/yyyy")}\nValue = {y_value}";
+                labelTip.Location = new System.Drawing.Point(e.X + 20, e.Y - 20);
+                labelTip.BringToFront();
             }
         }
 
