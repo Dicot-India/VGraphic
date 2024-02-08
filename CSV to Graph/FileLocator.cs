@@ -40,9 +40,32 @@ namespace CSV_Graph
             }
         }
 
-        public FileDataList() { }
+        public FileDataList(string infoPath) 
+        {
+            if (!Directory.Exists(infoPath))
+            {
+                Directory.CreateDirectory(infoPath);
+            }
 
-        public void FileDataLoad(string Location)
+            string fileCollectionInfo = Path.Combine(infoPath, "Collection.json");
+
+
+            if (!File.Exists(fileCollectionInfo))
+            {
+                using (File.Create(fileCollectionInfo)) { };
+                this.fileNumber = 0;
+                this.fileList = new List<fileInfo>();
+            }
+            else
+            {
+                FileDataLoad(fileCollectionInfo);
+            }
+        }
+
+        public FileDataList()
+        { }
+
+            public void FileDataLoad(string Location)
         {
             using (StreamReader sr =  new StreamReader(Location))
             {

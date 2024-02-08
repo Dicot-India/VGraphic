@@ -10,11 +10,8 @@ using Image = iTextSharp.text.Image;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-using ScottPlot;
-using System.Drawing;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows.Documents;
+using ScottPlot;
 
 namespace CSV_Graph
 {
@@ -32,6 +29,16 @@ namespace CSV_Graph
         string[] content = new string[0];
 
         List<ScottPlot.Plottables.Signal> source = new List<ScottPlot.Plottables.Signal>();
+
+        DateTime x_value = new DateTime();
+
+        double y_value = 0;
+
+        System.Windows.Forms.Label label = new System.Windows.Forms.Label();
+
+        DataTable dtCopy = new DataTable();
+
+        List<int> selectedIndices = new List<int>();
 
         public Main()
         {
@@ -116,29 +123,32 @@ namespace CSV_Graph
             dataView.Font = new System.Drawing.Font("Lucida Sans Unicode", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             formsPlot.Dock = DockStyle.Fill;
             tabControl.TabPages[0].Controls.Add(formsPlot);
-            ScottPlot.Control.InputBindings customInputBindings = new ScottPlot.Control.InputBindings()
-            {
-                DragPanButton = null,
-                DragZoomRectangleButton = ScottPlot.Control.MouseButton.Left,
-                DragZoomButton = ScottPlot.Control.MouseButton.Left,
-                ZoomInWheelDirection = ScottPlot.Control.MouseWheelDirection.Up,
-                ZoomOutWheelDirection = ScottPlot.Control.MouseWheelDirection.Down,
-                ClickAutoAxisButton = ScottPlot.Control.MouseButton.Left,
-                ClickContextMenuButton = ScottPlot.Control.MouseButton.Right,
-            };
+            formsPlot.MouseMove += formsPlot_MouseMoved;
+            formsPlot.MouseHover += FormsPlot_MouseHover;
+            label.BackColor = System.Drawing.Color.White;
+            label.Font = new System.Drawing.Font("Times New Roman", 10f);
+            label.ForeColor = System.Drawing.Color.Black;
+            label.Size = new System.Drawing.Size(200, 17);
 
-            ScottPlot.Control.Interaction interaction = new ScottPlot.Control.Interaction(formsPlot)
-            {
-                Inputs = customInputBindings,
-            };
-
-            formsPlot.Interaction = interaction;
-            formsPlot.MouseHover += FormsPlot_MouseMove;
         }
 
-        private void FormsPlot_MouseMove(object sender, EventArgs e)
+        private void FormsPlot_MouseHover(object sender, EventArgs e)
         {
 
+        }
+
+        private void formsPlot_MouseMoved(object sender, MouseEventArgs e)
+        {
+            if (source.Count > 0)
+            {
+                Pixel mousePixel = new Pixel(e.X, e.Y);
+                Coordinates mouseCoordinates = formsPlot.Plot.GetCoordinates(mousePixel);
+                x_value = DateTime.FromOADate(mouseCoordinates.X);
+                y_value = mouseCoordinates.Y;
+                label.Text = $"Time={x_value} Value={y_value}";
+                label.Location = e.Location;
+                label.BringToFront();
+            }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -397,6 +407,7 @@ namespace CSV_Graph
                 }
 
                 dataView.DataSource = dt;
+                dtCopy = dt;
 
                 DateTime[] dateTimes = dt.AsEnumerable().Select(row => row.Field<string>(0)).Where(str => DateTime.TryParse(str, out _)).Select(str => DateTime.Parse(str)).ToArray();
                 double[] dateTimesOADate = dateTimes.Select(dt => dt.ToOADate()).ToArray();
@@ -406,12 +417,10 @@ namespace CSV_Graph
                     if (dateTimesOADate.Length == data.Length)
                     {
                         var signal = formsPlot.Plot.Add.Signal(data);
-
                         signal.Label = headers[i];
                         signal.Data.XOffset = dateTimesOADate[0];
                         signal.Data.Period = dateTimesOADate[1] - dateTimesOADate[0];
                         signal.MaximumMarkerSize = 10;
-
                         source.Add(signal);
                     }
                 }
@@ -534,13 +543,89 @@ namespace CSV_Graph
             // Set the DataSource property of DataGridView to the filtered DataTable
             dataView.DataSource = filteredDataTable;
 
+            if (helpToolStripMenuItem.Enabled == true)
+            {
+                source.Clear();
+                formsPlot.Plot.Clear();
+            }
 
+            helpToolStripMenuItem.Enabled = true;
+
+            DateTime[] dateTimes = filteredDataTable.AsEnumerable().Select(row => row.Field<string>(0)).Where(str => DateTime.TryParse(str, out _)).Select(str => DateTime.Parse(str)).ToArray();
+            double[] dateTimesOADate = dateTimes.Select(dt => dt.ToOADate()).ToArray();
+            dtCopy = filteredDataTable;
+            List<string> headers = new List<string>();
+
+            for (int c = 0; c < filteredDataTable.Columns.Count; c++)
+            {
+                headers.Add(filteredDataTable.Columns[c].ColumnName);
+            }
+
+            for (int i = 1; i < headers.Count; i++)
+            {
+                double[] data = filteredDataTable.AsEnumerable().Select(row => row.Field<string>(i)).Where(strValue => float.TryParse(strValue, out _)).Select(strValue => double.Parse(strValue)).ToArray();
+                if (dateTimesOADate.Length == data.Length)
+                {
+                    var signal = formsPlot.Plot.Add.Signal(data);
+
+                    signal.Label = headers[i];
+                    signal.Data.XOffset = dateTimesOADate[0];
+                    signal.Data.Period = dateTimesOADate[1] - dateTimesOADate[0];
+                    signal.MaximumMarkerSize = 10;
+                    if(selectedIndices.Count > 0)
+                    {
+                        signal.IsVisible = selectedIndices.Contains(i - 1);
+                    }
+                    source.Add(signal);
+                }
+            }
+            formsPlot.Plot.Legend.IsVisible = true;
+            formsPlot.Plot.Axes.DateTimeTicksBottom();
+            formsPlot.Plot.Axes.AutoScale();
+            formsPlot.Plot.Render();
+            formsPlot.Refresh();
         }
 
         private void clearFilter_Click(object sender, EventArgs e)
         {
             dataView.DataSource = dt;
+            dtCopy = dt;
             dataView.Refresh();
+            source.Clear();
+            formsPlot.Plot.Clear();
+            DateTime[] dateTimes = dt.AsEnumerable().Select(row => row.Field<string>(0)).Where(str => DateTime.TryParse(str, out _)).Select(str => DateTime.Parse(str)).ToArray();
+            double[] dateTimesOADate = dateTimes.Select(dt => dt.ToOADate()).ToArray();
+            dtCopy = dt;
+            List<string> headers = new List<string>();
+
+            for (int c = 0; c < dt.Columns.Count; c++)
+            {
+                headers.Add(dt.Columns[c].ColumnName);
+            }
+
+            for (int i = 1; i < headers.Count; i++)
+            {
+                double[] data = dt.AsEnumerable().Select(row => row.Field<string>(i)).Where(strValue => float.TryParse(strValue, out _)).Select(strValue => double.Parse(strValue)).ToArray();
+                if (dateTimesOADate.Length == data.Length)
+                {
+                    var signal = formsPlot.Plot.Add.Signal(data);
+
+                    signal.Label = headers[i];
+                    signal.Data.XOffset = dateTimesOADate[0];
+                    signal.Data.Period = dateTimesOADate[1] - dateTimesOADate[0];
+                    signal.MaximumMarkerSize = 10;
+                    if (selectedIndices.Count > 0)
+                    {
+                        signal.IsVisible = selectedIndices.Contains(i - 1);
+                    }
+                    source.Add(signal);
+                }
+            }
+            formsPlot.Plot.Legend.IsVisible = true;
+            formsPlot.Plot.Axes.DateTimeTicksBottom();
+            formsPlot.Plot.Axes.AutoScale();
+            formsPlot.Plot.Render();
+            formsPlot.Refresh();
         }
 
         private void exportPDFButton_Click(object sender, EventArgs e)
@@ -608,7 +693,7 @@ namespace CSV_Graph
                     PdfPTable statTable = new PdfPTable(4);
                     statTable.WidthPercentage = 50;
 
-                    foreach(DataGridViewColumn col in dataGridView1.Columns)
+                    foreach (DataGridViewColumn col in dataGridView1.Columns)
                     {
                         PdfPCell cell = new PdfPCell(new Phrase(col.HeaderText, chf));
                         cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -616,19 +701,19 @@ namespace CSV_Graph
                         statTable.AddCell(cell);
                     }
 
-                    foreach(DataGridViewRow row in dataGridView1.Rows)
+                    foreach (DataGridViewRow row in dataGridView1.Rows)
                     {
-                        foreach(DataGridViewCell rowCell in row.Cells)
-                        if (rowCell.Value != null)
-                        {
-                            PdfPCell cell = new PdfPCell(new Phrase(rowCell.Value.ToString(), chf));
-                            cell.BackgroundColor = BaseColor.LIGHT_GRAY;
-                            statTable.AddCell(cell);
-                        }
-                        else
-                        {
-                            statTable.AddCell(new Phrase());
-                        }
+                        foreach (DataGridViewCell rowCell in row.Cells)
+                            if (rowCell.Value != null)
+                            {
+                                PdfPCell cell = new PdfPCell(new Phrase(rowCell.Value.ToString(), chf));
+                                cell.BackgroundColor = BaseColor.LIGHT_GRAY;
+                                statTable.AddCell(cell);
+                            }
+                            else
+                            {
+                                statTable.AddCell(new Phrase());
+                            }
                     }
 
                     statTable.HeaderRows = 1;
@@ -829,6 +914,7 @@ namespace CSV_Graph
                             var dataTables = files.Select(f => LoadCsv(f, startSelection, endSelection)).ToList();
                             dt = MergeDataTables(dataTables, startSelection, endSelection);
                             dataView.DataSource = dt;
+                            dtCopy = dt;
                             LoadGraph();
                             filterStart.Value = startSelection;
                             filterStart.MinDate = startSelection;
@@ -1020,13 +1106,40 @@ namespace CSV_Graph
                     dataGridView1.Rows[rowIndex].Cells[0].Value = dt.Columns[i].ColumnName;
                     dataGridView1.Rows[rowIndex].Cells[1].Value = min;
                     dataGridView1.Rows[rowIndex].Cells[2].Value = max;
-                    dataGridView1.Rows[rowIndex].Cells[3].Value = average;  
+                    dataGridView1.Rows[rowIndex].Cells[3].Value = average;
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error Getting Statistics", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            List<string> channelNames = new List<string>();
+
+            for (int i = 1; i < dt.Columns.Count; i++)
+            {
+                channelNames.Add(dt.Columns[i].ColumnName);
+            }
+
+            ParameterSelctor parameterSelector = new ParameterSelctor(channelNames);
+            if (parameterSelector.ShowDialog() == DialogResult.OK)
+            {
+                dataView.DataSource = dtCopy;
+                selectedIndices = parameterSelector.selectedChannelID;
+                for (int i = 0; i < channelNames.Count; i++)
+                {
+                    dataView.Columns[i + 1].Visible = selectedIndices.Contains(i);
+                    source[i].IsVisible = selectedIndices.Contains(i);
+                }
+            }
+        }
+
+        private void splitContainer_SplitterMoved(object sender, SplitterEventArgs e)
+        {
 
         }
     }

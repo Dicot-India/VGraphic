@@ -36,5 +36,26 @@ namespace CSV_Graph
                 this.Close();
             }
         }
+
+        private void devicePicker_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string path = devices[devicePicker.SelectedIndex];
+            FileDataList fileInformation = new FileDataList(path);
+            if (fileInformation != null && fileInformation.fileList.Count > 0)
+            {
+                fileInfo startFile = fileInformation.fileList[0];
+                fileInfo endFile = fileInformation.fileList[fileInformation.fileList.Count - 1];
+                DateTime fileStartTime = new DateTime(startFile.startTimeStamp);
+                DateTime fileEndTime = new DateTime(endFile.endTimeStamp);
+
+                startTimePicker.Value = fileStartTime;
+                startTimePicker.MinDate = fileStartTime;
+                startTimePicker.MaxDate = fileEndTime;
+
+                EndTimePicker.Value = fileEndTime;
+                EndTimePicker.MaxDate = fileEndTime;
+                EndTimePicker.MinDate = fileStartTime;
+            }
+        }
     }
 }

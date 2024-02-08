@@ -50,6 +50,7 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.clearFilter = new System.Windows.Forms.Button();
@@ -107,28 +108,28 @@
             this.fileToolStripMenuItem,
             this.databaseToolStripMenuItem});
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.fileToolStripMenuItem.Text = "File";
             this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
             // 
             // databaseToolStripMenuItem
             // 
             this.databaseToolStripMenuItem.Name = "databaseToolStripMenuItem";
-            this.databaseToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.databaseToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.databaseToolStripMenuItem.Text = "Database";
             this.databaseToolStripMenuItem.Click += new System.EventHandler(this.databaseToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -149,7 +150,7 @@
             this.pngToolStripMenuItem,
             this.pdfToolStripMenuItem});
             this.saveAspngToolStripMenuItem.Name = "saveAspngToolStripMenuItem";
-            this.saveAspngToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.saveAspngToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveAspngToolStripMenuItem.Text = "Save As";
             // 
             // pngToolStripMenuItem
@@ -169,14 +170,14 @@
             // printToolStripMenuItem
             // 
             this.printToolStripMenuItem.Name = "printToolStripMenuItem";
-            this.printToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.printToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.printToolStripMenuItem.Text = "PDF Setup";
             this.printToolStripMenuItem.Click += new System.EventHandler(this.printToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.optionsToolStripMenuItem.Text = "Options";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
@@ -243,6 +244,7 @@
             // 
             // splitContainer.Panel1
             // 
+            this.splitContainer.Panel1.Controls.Add(this.linkLabel1);
             this.splitContainer.Panel1.Controls.Add(this.button2);
             this.splitContainer.Panel1.Controls.Add(this.button1);
             this.splitContainer.Panel1.Controls.Add(this.clearFilter);
@@ -257,16 +259,29 @@
             // 
             this.splitContainer.Panel2.Controls.Add(this.dataView);
             this.splitContainer.Size = new System.Drawing.Size(1334, 789);
-            this.splitContainer.SplitterDistance = 56;
+            this.splitContainer.SplitterDistance = 67;
             this.splitContainer.SplitterWidth = 5;
             this.splitContainer.TabIndex = 0;
+            this.splitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer_SplitterMoved);
+            // 
+            // linkLabel1
+            // 
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Location = new System.Drawing.Point(3, 35);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(116, 17);
+            this.linkLabel1.TabIndex = 8;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "Filter Parameters";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(1099, 7);
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button2.Location = new System.Drawing.Point(1208, 6);
             this.button2.Margin = new System.Windows.Forms.Padding(4);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(120, 46);
+            this.button2.Size = new System.Drawing.Size(120, 37);
             this.button2.TabIndex = 7;
             this.button2.Text = "PDF Setup";
             this.button2.UseVisualStyleBackColor = true;
@@ -277,7 +292,7 @@
             this.button1.Location = new System.Drawing.Point(782, 7);
             this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(150, 46);
+            this.button1.Size = new System.Drawing.Size(130, 36);
             this.button1.TabIndex = 6;
             this.button1.Text = "Export CSV";
             this.button1.UseVisualStyleBackColor = true;
@@ -288,7 +303,7 @@
             this.clearFilter.Location = new System.Drawing.Point(655, 7);
             this.clearFilter.Margin = new System.Windows.Forms.Padding(4);
             this.clearFilter.Name = "clearFilter";
-            this.clearFilter.Size = new System.Drawing.Size(119, 46);
+            this.clearFilter.Size = new System.Drawing.Size(119, 36);
             this.clearFilter.TabIndex = 5;
             this.clearFilter.Text = "Clear Filter";
             this.clearFilter.UseVisualStyleBackColor = true;
@@ -306,10 +321,11 @@
             // 
             // exportPDFButton
             // 
-            this.exportPDFButton.Location = new System.Drawing.Point(940, 6);
+            this.exportPDFButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.exportPDFButton.Location = new System.Drawing.Point(1077, 6);
             this.exportPDFButton.Margin = new System.Windows.Forms.Padding(4);
             this.exportPDFButton.Name = "exportPDFButton";
-            this.exportPDFButton.Size = new System.Drawing.Size(151, 46);
+            this.exportPDFButton.Size = new System.Drawing.Size(123, 37);
             this.exportPDFButton.TabIndex = 3;
             this.exportPDFButton.Text = "Export PDF";
             this.exportPDFButton.UseVisualStyleBackColor = true;
@@ -320,7 +336,7 @@
             this.filterButton.Location = new System.Drawing.Point(528, 7);
             this.filterButton.Margin = new System.Windows.Forms.Padding(4);
             this.filterButton.Name = "filterButton";
-            this.filterButton.Size = new System.Drawing.Size(119, 46);
+            this.filterButton.Size = new System.Drawing.Size(119, 36);
             this.filterButton.TabIndex = 2;
             this.filterButton.Text = "Filter";
             this.filterButton.UseVisualStyleBackColor = true;
@@ -348,13 +364,16 @@
             // 
             // dataView
             // 
+            this.dataView.AllowUserToAddRows = false;
+            this.dataView.AllowUserToDeleteRows = false;
             this.dataView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataView.Location = new System.Drawing.Point(0, 0);
             this.dataView.Margin = new System.Windows.Forms.Padding(4);
             this.dataView.Name = "dataView";
+            this.dataView.ReadOnly = true;
             this.dataView.RowHeadersWidth = 51;
-            this.dataView.Size = new System.Drawing.Size(1334, 728);
+            this.dataView.Size = new System.Drawing.Size(1334, 717);
             this.dataView.TabIndex = 0;
             this.dataView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataView_CellContentClick);
             // 
@@ -371,6 +390,8 @@
             // 
             // dataGridView1
             // 
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToDeleteRows = false;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ChannelName,
@@ -380,6 +401,7 @@
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(3, 3);
             this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowTemplate.Height = 24;
             this.dataGridView1.Size = new System.Drawing.Size(1334, 787);
             this.dataGridView1.TabIndex = 0;
@@ -480,5 +502,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Minimum;
         private System.Windows.Forms.DataGridViewTextBoxColumn Maximum;
         private System.Windows.Forms.DataGridViewTextBoxColumn Average;
+        private System.Windows.Forms.LinkLabel linkLabel1;
     }
 }

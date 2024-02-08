@@ -40,7 +40,7 @@
             // startTimePicker
             // 
             this.startTimePicker.Location = new System.Drawing.Point(9, 45);
-            this.startTimePicker.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.startTimePicker.Margin = new System.Windows.Forms.Padding(2);
             this.startTimePicker.Name = "startTimePicker";
             this.startTimePicker.Size = new System.Drawing.Size(162, 20);
             this.startTimePicker.TabIndex = 0;
@@ -48,7 +48,7 @@
             // EndTimePicker
             // 
             this.EndTimePicker.Location = new System.Drawing.Point(9, 80);
-            this.EndTimePicker.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.EndTimePicker.Margin = new System.Windows.Forms.Padding(2);
             this.EndTimePicker.Name = "EndTimePicker";
             this.EndTimePicker.Size = new System.Drawing.Size(162, 20);
             this.EndTimePicker.TabIndex = 1;
@@ -66,7 +66,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(103, 118);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(56, 30);
             this.button1.TabIndex = 3;
@@ -78,7 +78,7 @@
             // 
             this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.button2.Location = new System.Drawing.Point(9, 118);
-            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(56, 30);
             this.button2.TabIndex = 3;
@@ -101,10 +101,11 @@
             this.devicePicker.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.devicePicker.FormattingEnabled = true;
             this.devicePicker.Location = new System.Drawing.Point(69, 11);
-            this.devicePicker.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.devicePicker.Margin = new System.Windows.Forms.Padding(2);
             this.devicePicker.Name = "devicePicker";
             this.devicePicker.Size = new System.Drawing.Size(68, 21);
             this.devicePicker.TabIndex = 5;
+            this.devicePicker.SelectedIndexChanged += new System.EventHandler(this.devicePicker_SelectedIndexChanged);
             // 
             // dateTimeSelector
             // 
@@ -112,7 +113,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.button2;
-            this.ClientSize = new System.Drawing.Size(177, 163);
+            this.ClientSize = new System.Drawing.Size(190, 159);
             this.ControlBox = false;
             this.Controls.Add(this.devicePicker);
             this.Controls.Add(this.label2);
@@ -122,7 +123,7 @@
             this.Controls.Add(this.EndTimePicker);
             this.Controls.Add(this.startTimePicker);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "dateTimeSelector";
