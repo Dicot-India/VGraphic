@@ -40,6 +40,8 @@ namespace CSV_Graph
 
         List<int> selectedIndices = new List<int>();
 
+        bool coordinatesVisible = true;
+
         public Main()
         {
             string reply = keyRead("VG");
@@ -130,17 +132,26 @@ namespace CSV_Graph
             labelTip.Size = new System.Drawing.Size(200, 40);
             formsPlot.Controls.Add(labelTip);
             formsPlot.Cursor = Cursors.Cross;
+            MenuItem coordinatesVisibility = new MenuItem("Toggle Coordinates");
+            formsPlot.Menu.Add("Toggle Coordinates", CoordinatesVisibility_Click);
+        }
+
+        private void CoordinatesVisibility_Click(IPlotControl control)
+        {
+            labelTip.Visible = !coordinatesVisible;
+            coordinatesVisible = !coordinatesVisible;
         }
 
         private void formsPlot_MouseMoved(object sender, MouseEventArgs e)
         {
-            if (source.Count > 0)
+            if (source.Count > 0 && coordinatesVisible)
             {
                 Pixel mousePixel = new Pixel(e.X, e.Y);
                 Coordinates mouseCoordinates = formsPlot.Plot.GetCoordinates(mousePixel);
                 x_value = DateTime.FromOADate(mouseCoordinates.X);
+                string x_Display = x_value.ToString("HH:mm:ss dd/MM/yyyy");
                 y_value = mouseCoordinates.Y;
-                labelTip.Text = $"Time = {x_value.ToString("HH:mm:ss dd/MM/yyyy")}\nValue = {y_value}";
+                labelTip.Text = $"Time = {x_Display}\nValue = {y_value}";
                 labelTip.Location = new System.Drawing.Point(e.X + 20, e.Y - 20);
                 labelTip.BringToFront();
             }
@@ -155,7 +166,7 @@ namespace CSV_Graph
         {
             try
             {
-                if (System.Windows.Forms.MessageBox.Show("Are you sure you want to exit?", "Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show("Are you sure you want to exit?", "Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     Environment.Exit(0);
                 }
@@ -246,7 +257,7 @@ namespace CSV_Graph
                     if (Properties.Settings.Default.chartStat)
                     {
                         BaseFont headerFont = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-                        iTextSharp.text.Font chf = new iTextSharp.text.Font(headerFont, 10, 1, BaseColor.WHITE);
+                        iTextSharp.text.Font chf = new iTextSharp.text.Font(headerFont, 10, 1, BaseColor.BLACK);
 
                         PdfPTable statTable = new PdfPTable(4);
                         statTable.WidthPercentage = 50;
@@ -255,7 +266,7 @@ namespace CSV_Graph
                         {
                             PdfPCell cell = new PdfPCell(new Phrase(col.HeaderText, chf));
                             cell.HorizontalAlignment = Element.ALIGN_CENTER;
-                            cell.BackgroundColor = BaseColor.ORANGE;
+                            cell.BackgroundColor = BaseColor.WHITE;
                             statTable.AddCell(cell);
                         }
 
@@ -265,7 +276,7 @@ namespace CSV_Graph
                                 if (rowCell.Value != null)
                                 {
                                     PdfPCell cell = new PdfPCell(new Phrase(rowCell.Value.ToString(), chf));
-                                    cell.BackgroundColor = BaseColor.LIGHT_GRAY;
+                                    cell.BackgroundColor = BaseColor.WHITE;
                                     statTable.AddCell(cell);
                                 }
                                 else
@@ -450,7 +461,7 @@ namespace CSV_Graph
                     list.addInfo(startTS, endTS, content[dataStartingIndex].Split(',').ToList<string>(), Path.GetFileNameWithoutExtension(file));
                     list.SaveFileInfo(DeviceID);
                 }
-                fileStatistics();
+                fileStatistics(dt);
             }
             catch (Exception Ex)
             {
@@ -475,13 +486,11 @@ namespace CSV_Graph
                     // Parse filterStart and filterEnd as DateTime objects
                     DateTime startDateTime = filterStart.Value;
                     DateTime endDateTime = filterEnd.Value;
-
+                    DateTime[] dateTimes = dtCopy.AsEnumerable().Select(row => row.Field<string>(0)).Where(str => DateTime.TryParse(str, out _)).Select(str => DateTime.Parse(str)).ToArray();
                     // Find the index of the row with a datetime value equal to or greater than filterStart
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        DateTime rowDateTime = Convert.ToDateTime(dt.Rows[i][0]); // Assuming column 0 contains datetime values
-
-                        if (rowDateTime >= startDateTime)
+                        if (dateTimes[i] >= startDateTime)
                         {
                             startIndex = i;
                             break;
@@ -491,13 +500,11 @@ namespace CSV_Graph
                     // Find the index of the row with a datetime value equal to or greater than filterEnd
                     for (int i = startIndex; i < dt.Rows.Count; i++)
                     {
-                        DateTime rowDateTime = Convert.ToDateTime(dt.Rows[i][0]); // Assuming column 0 contains datetime values
-
-                        if (rowDateTime >= endDateTime)
+                        if (dateTimes[i] > endDateTime)
                         {
-                            endIndex = i;
                             break;
                         }
+                        endIndex = i;
                     }
 
                     if (startIndex != -1 && endIndex != -1)
@@ -545,7 +552,7 @@ namespace CSV_Graph
             }
 
             helpToolStripMenuItem.Enabled = true;
-
+            fileStatistics(filteredDataTable);
             DateTime[] dateTimes = filteredDataTable.AsEnumerable().Select(row => row.Field<string>(0)).Where(str => DateTime.TryParse(str, out _)).Select(str => DateTime.Parse(str)).ToArray();
             double[] dateTimesOADate = dateTimes.Select(dt => dt.ToOADate()).ToArray();
             dtCopy = filteredDataTable;
@@ -567,7 +574,7 @@ namespace CSV_Graph
                     signal.Data.XOffset = dateTimesOADate[0];
                     signal.Data.Period = dateTimesOADate[1] - dateTimesOADate[0];
                     signal.MaximumMarkerSize = 10;
-                    if(selectedIndices.Count > 0)
+                    if (selectedIndices.Count > 0)
                     {
                         signal.IsVisible = selectedIndices.Contains(i - 1);
                     }
@@ -621,177 +628,213 @@ namespace CSV_Graph
             formsPlot.Plot.Axes.AutoScale();
             formsPlot.Plot.Render();
             formsPlot.Refresh();
+            fileStatistics(dt);
         }
 
         private void exportPDFButton_Click(object sender, EventArgs e)
         {
-            this.UseWaitCursor = true;
-            ExportPDF();
-            this.UseWaitCursor = false;
+            try
+            {
+                this.UseWaitCursor = true;
+                ExportPDF();
+                this.UseWaitCursor = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
 
         private void ExportPDF()
         {
-            SFD.Filter = "PDF (*.pdf)|*.pdf";
-            if (SFD.ShowDialog() == DialogResult.OK)
+            try
             {
-                // Create a new PDF document in landscape orientation
-                Document doc = new Document(PageSize.LETTER.Rotate());
-                BaseFont headerFont = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-                iTextSharp.text.Font titleFont = new iTextSharp.text.Font(headerFont, 25, 1, BaseColor.BLACK);
-                iTextSharp.text.Font subtitleFont = new iTextSharp.text.Font(headerFont, 20, 1, BaseColor.BLACK);
-                iTextSharp.text.Paragraph titlePara = new iTextSharp.text.Paragraph(Properties.Settings.Default.Title, titleFont);
-                titlePara.Alignment = Element.ALIGN_CENTER;
-                iTextSharp.text.Paragraph subtitlePara = new iTextSharp.text.Paragraph(Properties.Settings.Default.Subtitle, subtitleFont);
-                subtitlePara.Alignment = Element.ALIGN_CENTER;
-
-                // Create an instance of your custom PdfPageEvent class
-                PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(SFD.FileName, FileMode.Create));
-                PageNumberEventHandler pageEventHandler = new PageNumberEventHandler();
-                writer.PageEvent = pageEventHandler;
-                iTextSharp.text.Font chf = new iTextSharp.text.Font(headerFont, 10, 1, BaseColor.WHITE);
-
-                doc.Open();
-
-                if (!String.IsNullOrEmpty(Properties.Settings.Default.Logo))
+                SFD.Filter = "PDF (*.pdf)|*.pdf";
+                if (SFD.ShowDialog() == DialogResult.OK)
                 {
-                    if (File.Exists(Properties.Settings.Default.Logo))
+                    // Create a new PDF document in landscape orientation
+                    Document doc = new Document(PageSize.LETTER.Rotate());
+                    BaseFont headerFont = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                    Font titleFont = new Font(headerFont, 25, 1, BaseColor.BLACK);
+                    Font subtitleFont = new Font(headerFont, 20, 1, BaseColor.BLACK);
+                    Paragraph titlePara = new Paragraph(Properties.Settings.Default.Title, titleFont);
+                    titlePara.Alignment = Element.ALIGN_CENTER;
+                    Paragraph subtitlePara = new Paragraph(Properties.Settings.Default.Subtitle, subtitleFont);
+                    subtitlePara.Alignment = Element.ALIGN_CENTER;
+
+                    // Create an instance of your custom PdfPageEvent class
+                    PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(SFD.FileName, FileMode.Create));
+                    PageNumberEventHandler pageEventHandler = new PageNumberEventHandler();
+                    writer.PageEvent = pageEventHandler;
+                    Font chf = new Font(headerFont, 10, 1, BaseColor.BLACK);
+
+                    doc.Open();
+
+                    if (!String.IsNullOrEmpty(Properties.Settings.Default.Logo))
                     {
-                        iTextSharp.text.Image img = iTextSharp.text.Image.GetInstance(System.Drawing.Image.FromFile(Properties.Settings.Default.Logo), System.Drawing.Imaging.ImageFormat.Jpeg);
+                        if (File.Exists(Properties.Settings.Default.Logo))
+                        {
+                            Image img = Image.GetInstance(System.Drawing.Image.FromFile(Properties.Settings.Default.Logo), System.Drawing.Imaging.ImageFormat.Jpeg);
 
-                        float width = 150f; // Replace with your desired width
-                        float height = 100f; // Replace with your desired height
+                            float width = 150f; // Replace with your desired width
+                            float height = 100f; // Replace with your desired height
 
-                        // Set absolute position and scale to fit within the specified rectangle
-                        img.SetAbsolutePosition(50f, doc.PageSize.Height - 100);
-                        img.ScaleToFit(width, height);
+                            // Set absolute position and scale to fit within the specified rectangle
+                            img.SetAbsolutePosition(50f, doc.PageSize.Height - 100);
+                            img.ScaleToFit(width, height);
 
-                        // Add the image to the PDF document
-                        doc.Add(img);
-                    }
-                }
-
-                if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.Title))
-                {
-                    doc.Add(titlePara);
-                    doc.Add(Chunk.NEWLINE);
-                }
-
-                if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.Subtitle))
-                {
-                    doc.Add(subtitlePara);
-                    doc.Add(Chunk.NEWLINE);
-                }
-
-                if (Properties.Settings.Default.tableStat)
-                {
-                    PdfPTable statTable = new PdfPTable(4);
-                    statTable.WidthPercentage = 50;
-
-                    foreach (DataGridViewColumn col in dataGridView1.Columns)
-                    {
-                        PdfPCell cell = new PdfPCell(new Phrase(col.HeaderText, chf));
-                        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-                        cell.BackgroundColor = BaseColor.ORANGE;
-                        statTable.AddCell(cell);
+                            // Add the image to the PDF document
+                            doc.Add(img);
+                        }
                     }
 
-                    foreach (DataGridViewRow row in dataGridView1.Rows)
+                    if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.Title))
                     {
-                        foreach (DataGridViewCell rowCell in row.Cells)
-                            if (rowCell.Value != null)
+                        doc.Add(titlePara);
+                        doc.Add(Chunk.NEWLINE);
+                    }
+
+                    if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.Subtitle))
+                    {
+                        doc.Add(subtitlePara);
+                        doc.Add(Chunk.NEWLINE);
+                    }
+
+                    if (Properties.Settings.Default.tableStat)
+                    {
+                        PdfPTable statTable = new PdfPTable(4);
+                        statTable.WidthPercentage = 50;
+
+                        foreach (DataGridViewColumn col in dataGridView1.Columns)
+                        {
+                            PdfPCell cell = new PdfPCell(new Phrase(col.HeaderText, chf));
+                            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            cell.BackgroundColor = BaseColor.WHITE;
+                            statTable.AddCell(cell);
+                        }
+
+                        for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                        {
+                            if (selectedIndices.Contains(i))
                             {
-                                PdfPCell cell = new PdfPCell(new Phrase(rowCell.Value.ToString(), chf));
-                                cell.BackgroundColor = BaseColor.LIGHT_GRAY;
-                                statTable.AddCell(cell);
+                                DataGridViewRow row = dataGridView1.Rows[i];
+                                foreach (DataGridViewCell rowCell in row.Cells)
+                                {
+                                    if (rowCell.Value != null)
+                                    {
+                                        PdfPCell cell = new PdfPCell(new Phrase(rowCell.Value.ToString(), chf));
+                                        cell.BackgroundColor = BaseColor.WHITE;
+                                        statTable.AddCell(cell);
+                                    }
+                                    else
+                                    {
+                                        statTable.AddCell(new Phrase());
+                                    }
+                                }
                             }
-                            else
-                            {
-                                statTable.AddCell(new Phrase());
-                            }
+                        }
+
+                        statTable.HeaderRows = 1;
+                        // Add the table to the PDF document
+                        doc.Add(statTable);
+                        doc.Add(new Paragraph(Environment.NewLine));
                     }
 
-                    statTable.HeaderRows = 1;
-                    // Add the table to the PDF document
-                    doc.Add(statTable);
-                    doc.Add(new iTextSharp.text.Paragraph(Environment.NewLine));
-                }
+                    // Iterate through the dataGridView in segments of 13 channels
+                    int startIndex = 0;
 
-                // Iterate through the dataGridView in segments of 13 channels
-                int startIndex = 0;
-                while (startIndex < dataView.Columns.Count)
-                {
-                    int endIndex = Math.Min(startIndex + 6, dataView.Columns.Count - 1);
-                    // Create a PdfPTable for the current segment
-                    PdfPTable table = new PdfPTable(endIndex - startIndex + 1); // Number of columns
-
-                    if (startIndex > 0)
+                    while (startIndex < dataView.Columns.Count)
                     {
-                        table = new PdfPTable(endIndex - startIndex + 2);
-                    }
 
-                    table.WidthPercentage = 100; // Set width to occupy full page width
+                        int endIndex = Math.Min(startIndex + 6, dataView.Columns.Count - 1);
+                        // Create a PdfPTable for the current segment
+                        PdfPTable table = new PdfPTable(endIndex - startIndex + 1); // Number of columns
 
+                        if(selectedIndices.Count > 0)
+                        {
+                            table = new PdfPTable(selectedIndices.Count + 1);
+                        }
 
-                    if (startIndex > 0)
-                    {
-                        DataGridViewColumn col = dataView.Columns[0];
-                        PdfPCell cell = new PdfPCell(new Phrase(col.HeaderText, chf));
-                        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-                        cell.BackgroundColor = BaseColor.ORANGE;
-                        table.AddCell(cell);
-                    }
-
-                    // Add header row with column names
-                    for (int i = startIndex; i <= endIndex; i++)
-                    {
-                        DataGridViewColumn col = dataView.Columns[i];
-                        PdfPCell cell = new PdfPCell(new Phrase(col.HeaderText, chf));
-                        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-                        cell.BackgroundColor = BaseColor.ORANGE;
-
-                        table.AddCell(cell);
-                    }
-
-                    // Add data rows
-                    foreach (DataGridViewRow row in dataView.Rows)
-                    {
                         if (startIndex > 0)
                         {
-                            if (row.Cells[0].Value != null)
-                            {
-                                PdfPCell cell = new PdfPCell(new Phrase(row.Cells[0].Value.ToString(), chf));
-                                cell.BackgroundColor = BaseColor.LIGHT_GRAY;
-                                table.AddCell(cell);
-                            }
-                            else
-                            {
-                                table.AddCell(new Phrase());
-                            }
+                            table = new PdfPTable(endIndex - startIndex + 2);
                         }
+
+                        table.WidthPercentage = 100; // Set width to occupy full page width
+
+
+                        if (startIndex > 0)
+                        {
+                            DataGridViewColumn col = dataView.Columns[0];
+                            PdfPCell cell = new PdfPCell(new Phrase(col.HeaderText, chf));
+                            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            cell.BackgroundColor = BaseColor.WHITE;
+                            table.AddCell(cell);
+                        }
+
+
+                        // Add header row with column names
                         for (int i = startIndex; i <= endIndex; i++)
                         {
-                            if (row.Cells[i].Value != null)
+                            if (selectedIndices.Contains(i - 1) || i == 0)
                             {
-                                PdfPCell cell = new PdfPCell(new Phrase(row.Cells[i].Value.ToString(), chf));
-                                cell.BackgroundColor = BaseColor.LIGHT_GRAY;
+                                DataGridViewColumn col = dataView.Columns[i];
+                                PdfPCell cell = new PdfPCell(new Phrase(col.HeaderText, chf));
+                                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                                cell.BackgroundColor = BaseColor.WHITE;
+
                                 table.AddCell(cell);
                             }
-                            else
+                        }
+
+                        // Add data rows
+                        foreach (DataGridViewRow row in dataView.Rows)
+                        {
+                            if (startIndex > 0)
                             {
-                                table.AddCell(new Phrase());
+                                if (row.Cells[0].Value != null)
+                                {
+                                    PdfPCell cell = new PdfPCell(new Phrase(row.Cells[0].Value.ToString(), chf));
+                                    cell.BackgroundColor = BaseColor.WHITE;
+                                    table.AddCell(cell);
+                                }
+                                else
+                                {
+                                    table.AddCell(new Phrase());
+                                }
+                            }
+                            for (int i = startIndex; i <= endIndex; i++)
+                            {
+                                if (selectedIndices.Contains(i - 1) || i == 0)
+                                {
+                                    if (row.Cells[i].Value != null)
+                                    {
+                                        PdfPCell cell = new PdfPCell(new Phrase(row.Cells[i].Value.ToString(), chf));
+                                        cell.BackgroundColor = BaseColor.WHITE;
+                                        table.AddCell(cell);
+                                    }
+                                    else
+                                    {
+                                        table.AddCell(new Phrase());
+                                    }
+                                }
                             }
                         }
-                    }
-                    table.HeaderRows = 1;
-                    // Add the table to the PDF document
-                    doc.Add(table);
-                    doc.Add(new iTextSharp.text.Paragraph(Environment.NewLine));
-                    startIndex = endIndex + 1; // Move to the next segment
-                }
+                        table.HeaderRows = 1;
+                        // Add the table to the PDF document
+                        doc.Add(table);
+                        doc.Add(new Paragraph(Environment.NewLine));
 
-                doc.Close();
-                System.Windows.Forms.MessageBox.Show("The PDF file was exported successfully!", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        startIndex = endIndex + 1; // Move to the next segment
+                    }
+
+                    doc.Close();
+                    MessageBox.Show("The PDF file was exported successfully!", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
             }
         }
 
@@ -833,7 +876,7 @@ namespace CSV_Graph
                     });
                     csvWrite.Start();
 
-                    System.Windows.Forms.MessageBox.Show("Data Exported Successfully", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Data Exported Successfully", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }
@@ -917,7 +960,7 @@ namespace CSV_Graph
                             filterEnd.Value = endSelection;
                             filterEnd.MinDate = startSelection;
                             filterEnd.MaxDate = endSelection;
-                            fileStatistics();
+                            fileStatistics(dt);
                         }
                         else
                         {
@@ -1063,7 +1106,7 @@ namespace CSV_Graph
 
         }
 
-        public void fileStatistics()
+        public void fileStatistics(DataTable table)
         {
             try
             {
@@ -1073,15 +1116,15 @@ namespace CSV_Graph
                     dataGridView1.Rows.Clear();
                 }
 
-                for (int i = 1; i < dt.Columns.Count; i++)
+                for (int i = 1; i < table.Columns.Count; i++)
                 {
-                    DataColumn column = dt.Columns[i];
+                    DataColumn column = table.Columns[i];
                     double min = double.MaxValue;
                     double max = double.MinValue;
                     double sum = 0;
                     int count = 0;
 
-                    foreach (DataRow row in dt.Rows)
+                    foreach (DataRow row in table.Rows)
                     {
                         if (!row.IsNull(column))
                         {
@@ -1098,7 +1141,7 @@ namespace CSV_Graph
                     double average = sum / count;
 
                     int rowIndex = dataGridView1.Rows.Add(); // Get the index of the newly added row
-                    dataGridView1.Rows[rowIndex].Cells[0].Value = dt.Columns[i].ColumnName;
+                    dataGridView1.Rows[rowIndex].Cells[0].Value = table.Columns[i].ColumnName;
                     dataGridView1.Rows[rowIndex].Cells[1].Value = min;
                     dataGridView1.Rows[rowIndex].Cells[2].Value = max;
                     dataGridView1.Rows[rowIndex].Cells[3].Value = average;
@@ -1129,6 +1172,7 @@ namespace CSV_Graph
                 {
                     dataView.Columns[i + 1].Visible = selectedIndices.Contains(i);
                     source[i].IsVisible = selectedIndices.Contains(i);
+                    dataGridView1.Rows[i].Visible = selectedIndices.Contains(i);
                 }
             }
         }
@@ -1153,7 +1197,7 @@ namespace CSV_Graph
             table.TotalWidth = document.PageSize.Width - 2 * margin;
             table.HorizontalAlignment = Element.ALIGN_RIGHT;
 
-            PdfPCell cell = new PdfPCell(new Phrase("Page " + writer.PageNumber, new iTextSharp.text.Font(iTextSharp.text.Font.FontFamily.HELVETICA, fontSize)));
+            PdfPCell cell = new PdfPCell(new Phrase("Page " + writer.PageNumber, new Font(iTextSharp.text.Font.FontFamily.HELVETICA, fontSize)));
             cell.Border = 0;
             table.AddCell(cell);
 
