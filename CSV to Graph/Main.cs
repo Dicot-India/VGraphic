@@ -750,7 +750,7 @@ namespace CSV_Graph
                         // Create a PdfPTable for the current segment
                         PdfPTable table = new PdfPTable(endIndex - startIndex + 1); // Number of columns
 
-                        if(selectedIndices.Count > 0)
+                        if (selectedIndices.Count > 0)
                         {
                             table = new PdfPTable(selectedIndices.Count + 1);
                         }
@@ -926,26 +926,13 @@ namespace CSV_Graph
 
                     if (startSelection < endSelection)
                     {
-
+                        string file = selector.selectedFile;
 
                         List<string> files = new List<string>();
-
-                        foreach (var fileData in fileInformation.fileList)
-                        {
-                            DateTime fileStartTime = new DateTime(fileData.startTimeStamp);
-                            DateTime fileEndTime = new DateTime(fileData.endTimeStamp);
-                            // Check if fileData is within the specified range
-                            if ((fileStartTime < endSelection && fileEndTime > startSelection) || (fileStartTime > startSelection && fileEndTime < endSelection))
-                            {
-                                string filePath = Path.Combine(FileLocator.mainLocation, Path.GetFileName(selector.selectedFolder), fileData.fileName + ".dat");
-                                files.Add(filePath);
-                            }
-
-                            if (fileStartTime > endSelection)
-                            {
-                                break;
-                            }
-                        }
+                        
+                        string filePath = Path.Combine(FileLocator.mainLocation, Path.GetFileName(selector.selectedFolder), file + ".dat");
+                        files.Add(filePath);
+                        
 
                         if (files.Count > 0)
                         {
@@ -954,12 +941,12 @@ namespace CSV_Graph
                             dataView.DataSource = dt;
                             dtCopy = dt;
                             LoadGraph();
-                            filterStart.Value = startSelection;
-                            filterStart.MinDate = startSelection;
                             filterStart.MaxDate = endSelection;
-                            filterEnd.Value = endSelection;
-                            filterEnd.MinDate = startSelection;
+                            filterStart.MinDate = startSelection;
+                            filterStart.Value = startSelection;
                             filterEnd.MaxDate = endSelection;
+                            filterEnd.MinDate = startSelection;
+                            filterEnd.Value = endSelection;
                             fileStatistics(dt);
                         }
                         else
