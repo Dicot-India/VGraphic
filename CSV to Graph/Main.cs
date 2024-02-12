@@ -257,7 +257,7 @@ namespace CSV_Graph
                     if (Properties.Settings.Default.chartStat)
                     {
                         BaseFont headerFont = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-                        iTextSharp.text.Font chf = new iTextSharp.text.Font(headerFont, 10, 1, BaseColor.BLACK);
+                        Font chf = new Font(headerFont, 10, 1, BaseColor.BLACK);
 
                         PdfPTable statTable = new PdfPTable(4);
                         statTable.WidthPercentage = 50;
@@ -270,24 +270,31 @@ namespace CSV_Graph
                             statTable.AddCell(cell);
                         }
 
-                        foreach (DataGridViewRow row in dataGridView1.Rows)
+                        for (int i = 0; i < dataGridView1.Rows.Count; i++)
                         {
-                            foreach (DataGridViewCell rowCell in row.Cells)
-                                if (rowCell.Value != null)
+                            if (selectedIndices.Contains(i))
+                            {
+                                DataGridViewRow row = dataGridView1.Rows[i];
+                                foreach (DataGridViewCell rowCell in row.Cells)
                                 {
-                                    PdfPCell cell = new PdfPCell(new Phrase(rowCell.Value.ToString(), chf));
-                                    cell.BackgroundColor = BaseColor.WHITE;
-                                    statTable.AddCell(cell);
+                                    if (rowCell.Value != null)
+                                    {
+                                        PdfPCell cell = new PdfPCell(new Phrase(rowCell.Value.ToString(), chf));
+                                        cell.BackgroundColor = BaseColor.WHITE;
+                                        statTable.AddCell(cell);
+                                    }
+                                    else
+                                    {
+                                        statTable.AddCell(new Phrase());
+                                    }
                                 }
-                                else
-                                {
-                                    statTable.AddCell(new Phrase());
-                                }
+                            }
                         }
 
                         statTable.HeaderRows = 1;
                         // Add the table to the PDF document
                         pdfDoc.Add(statTable);
+                        pdfDoc.Add(new Paragraph(Environment.NewLine));
                     }
 
                     Image chartImage = Image.GetInstance("chartImage.png");
