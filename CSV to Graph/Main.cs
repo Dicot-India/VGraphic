@@ -42,6 +42,8 @@ namespace CSV_Graph
 
         bool coordinatesVisible = true;
 
+        static int loadedDecimals = 0;
+
         public Main()
         {
             string reply = keyRead("VG");
@@ -151,10 +153,20 @@ namespace CSV_Graph
                 x_value = DateTime.FromOADate(mouseCoordinates.X);
                 string x_Display = x_value.ToString("HH:mm:ss dd/MM/yyyy");
                 y_value = mouseCoordinates.Y;
-                labelTip.Text = $"Time = {x_Display}\nValue = {y_value}";
+                labelTip.Text = $"Time = {x_Display}\nValue = {ValueFormatter(y_value)}";
                 labelTip.Location = new System.Drawing.Point(e.X + 20, e.Y - 20);
                 labelTip.BringToFront();
             }
+        }
+
+        string ValueFormatter(double value)
+        {
+            if(loadedDecimals > 0)
+            {
+                return value.ToString($"F{loadedDecimals}");
+            }
+            
+            return Math.Truncate(value).ToString();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -397,6 +409,13 @@ namespace CSV_Graph
                     }
                     DeviceID = int.Parse(content[1].Split(',')[0].Split(':')[1]);
                     list = new FileDataList(DeviceID);
+                    string number = content[3].Split(',')[1];
+                    loadedDecimals = number.Length - number.IndexOf('.') - 1;
+                }
+                else
+                {
+                    string number = content[1].Split(',')[1];
+                    loadedDecimals = number.Length - number.IndexOf('.') - 1;
                 }
 
                 string[] headers = content[dataStartingIndex].Split(',');
@@ -994,6 +1013,10 @@ namespace CSV_Graph
                     string[] rows = reader.ReadLine().Split(',');
 
                     DateTime timeStamp = Convert.ToDateTime(rows[0]);
+
+                    string number = rows[1];
+                    loadedDecimals = number.Length - number.IndexOf('.') - 1;
+
                     if (timeStamp > startSelection && timeStamp < endSelection)
                     {
 
@@ -1136,9 +1159,9 @@ namespace CSV_Graph
 
                     int rowIndex = dataGridView1.Rows.Add(); // Get the index of the newly added row
                     dataGridView1.Rows[rowIndex].Cells[0].Value = table.Columns[i].ColumnName;
-                    dataGridView1.Rows[rowIndex].Cells[1].Value = min;
-                    dataGridView1.Rows[rowIndex].Cells[2].Value = max;
-                    dataGridView1.Rows[rowIndex].Cells[3].Value = average;
+                    dataGridView1.Rows[rowIndex].Cells[1].Value = ValueFormatter(min);
+                    dataGridView1.Rows[rowIndex].Cells[2].Value = ValueFormatter(max);
+                    dataGridView1.Rows[rowIndex].Cells[3].Value = ValueFormatter(average);
                 }
             }
             catch (Exception ex)
