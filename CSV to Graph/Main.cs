@@ -46,33 +46,11 @@ namespace CSV_Graph
 
         public Main()
         {
-            string reply = keyRead("VG");
+            Form1 licenseActivation = new Form1();
 
-            if (reply == null)
-            {
+            licenseActivation.ShowDialog();
 
-                Form1 licenseActivation = new Form1();
-
-                licenseActivation.ShowDialog();
-
-                licenseActivated = licenseActivation.activated;
-            }
-            else if (reply != null)
-            {
-
-                if (bool.Parse(reply))
-                {
-                    licenseActivated = true;
-                }
-                else
-                {
-                    Form1 licenseActivation = new Form1();
-
-                    licenseActivation.ShowDialog();
-
-                    licenseActivated = licenseActivation.activated;
-                }
-            }
+            licenseActivated = licenseActivation.activated;
 
             if (!licenseActivated)
             {
@@ -84,41 +62,6 @@ namespace CSV_Graph
             if (!Directory.Exists(FileLocator.mainLocation))
             {
                 Directory.CreateDirectory(FileLocator.mainLocation);
-            }
-        }
-
-        public string keyRead(string KeyName)
-        {
-            try
-            {
-                // Opening the registry key
-                RegistryKey rk = Registry.CurrentUser;
-                // Open a subKey as read-only
-                RegistryKey sk1 = rk.OpenSubKey(@"SOFTWARE\VG");
-                // If the RegistrySubKey doesn't exist -> (null)
-                if (sk1 == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    try
-                    {
-                        // If the RegistryKey exists I get its value
-                        // or null is returned.
-                        return (string)sk1.GetValue(KeyName.ToUpper());
-                    }
-                    catch (Exception ex1)
-                    {
-                        System.Windows.MessageBox.Show(ex1.Message);
-                        return null;
-                    }
-                }
-            }
-            catch (Exception ex1)
-            {
-                System.Windows.MessageBox.Show(ex1.Message);
-                return null;
             }
         }
 
